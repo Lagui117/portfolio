@@ -1,0 +1,5 @@
+# Ce dossier contient les notebooks Jupyter d'exploration
+# Notebooks disponibles:
+# - sports_exploration.ipynb - Analyse exploratoire des données sportives
+# - finance_exploration.ipynb - Analyse des données financières
+# - feature_engineering.ipynb - Tests de features engineering

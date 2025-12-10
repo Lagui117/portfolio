@@ -1,0 +1,50 @@
+.sports {
+  padding: 20px;
+}
+
+.sports h1 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.matches-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.match-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+}
+
+.match-info h3 {
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.match-info p {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 3px 0;
+}
+
+.odds {
+  font-weight: 500;
+  color: #007bff;
+}
+
+.prediction-result {
+  background: #e7f3ff;
+  border-left: 4px solid #007bff;
+}
+
+.prediction-result p {
+  margin: 10px 0;
+  font-size: 1.1rem;
+}

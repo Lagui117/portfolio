@@ -1,0 +1,21 @@
+# Dockerfile pour le backend Flask
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Copier les dépendances
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copier le code
+COPY . .
+
+# Exposer le port
+EXPOSE 5000
+
+# Variables d'environnement
+ENV FLASK_APP=app.main:app
+ENV FLASK_ENV=production
+
+# Commande de démarrage
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "app.main:app"]

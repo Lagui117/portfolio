@@ -1,0 +1,7 @@
+*.pkl
+*.h5
+*.joblib
+data/raw/*.csv
+data/processed/*.csv
+.ipynb_checkpoints/
+__pycache__/
