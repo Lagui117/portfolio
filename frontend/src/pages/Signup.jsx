@@ -32,7 +32,7 @@ function Signup() {
     const result = await signup(formData)
     
     if (result.success) {
-      navigate('/dashboard')
+      navigate('/hub')
     } else {
       setError(result.error)
     }

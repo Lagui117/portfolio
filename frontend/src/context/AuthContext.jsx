@@ -49,7 +49,7 @@ export function AuthProvider({ children }) {
 
   const signup = async (userData) => {
     try {
-      const response = await api.post('/auth/signup', userData)
+      const response = await api.post('/auth/register', userData)
       const { access_token, user: newUser } = response.data
       
       localStorage.setItem('token', access_token)
@@ -71,12 +71,18 @@ export function AuthProvider({ children }) {
     setUser(null)
   }
 
+  const updateUser = (userData) => {
+    setUser(userData)
+    localStorage.setItem('user', JSON.stringify(userData))
+  }
+
   const value = {
     user,
     loading,
     login,
     signup,
     logout,
+    updateUser,
     isAuthenticated: !!user
   }
 

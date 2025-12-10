@@ -115,14 +115,21 @@ class PredictionService:
         h2h_stats: Optional[Dict[str, float]]
     ) -> List[float]:
         """Prepare feature vector for sports prediction."""
-        # Basic stats
-        home_win_rate = home_stats.get('win_rate', 0.5)
-        home_avg_goals = home_stats.get('avg_goals_scored', 1.5)
-        home_form = home_stats.get('recent_form', 1.5)
+        # Helper function to safely convert to float
+        def to_float(value, default=0.0):
+            try:
+                return float(value) if value is not None else default
+            except (ValueError, TypeError):
+                return default
         
-        away_win_rate = away_stats.get('win_rate', 0.5)
-        away_avg_goals = away_stats.get('avg_goals_scored', 1.5)
-        away_form = away_stats.get('recent_form', 1.5)
+        # Basic stats - safely convert to float
+        home_win_rate = to_float(home_stats.get('win_rate'), 0.5)
+        home_avg_goals = to_float(home_stats.get('avg_goals_scored'), 1.5)
+        home_form = to_float(home_stats.get('recent_form'), 1.5)
+        
+        away_win_rate = to_float(away_stats.get('win_rate'), 0.5)
+        away_avg_goals = to_float(away_stats.get('avg_goals_scored'), 1.5)
+        away_form = to_float(away_stats.get('recent_form'), 1.5)
         
         # Derived features
         win_rate_diff = home_win_rate - away_win_rate
@@ -166,8 +173,15 @@ class PredictionService:
         away_stats: Dict[str, float]
     ) -> Dict[str, Any]:
         """Fallback prediction when model is not available."""
-        home_strength = home_stats.get('win_rate', 0.5) + home_stats.get('recent_form', 1.5) / 3.0
-        away_strength = away_stats.get('win_rate', 0.5) + away_stats.get('recent_form', 1.5) / 3.0
+        # Helper function to safely convert to float
+        def to_float(value, default=0.0):
+            try:
+                return float(value) if value is not None else default
+            except (ValueError, TypeError):
+                return default
+        
+        home_strength = to_float(home_stats.get('win_rate'), 0.5) + to_float(home_stats.get('recent_form'), 1.5) / 3.0
+        away_strength = to_float(away_stats.get('win_rate'), 0.5) + to_float(away_stats.get('recent_form'), 1.5) / 3.0
         
         total_strength = home_strength + away_strength
         if total_strength == 0:

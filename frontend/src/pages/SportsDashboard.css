@@ -1,0 +1,392 @@
+.sports-dashboard {
+  min-height: 100vh;
+  padding: 2rem;
+  background: #020617;
+  color: #e5e7eb;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.dashboard-header {
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+  text-align: center;
+}
+
+.dashboard-header h1 {
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #22c55e 0%, #4ade80 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.disclaimer {
+  font-size: 0.9rem;
+  color: #9ca3af;
+  padding: 0.75rem 1rem;
+  background: rgba(239, 68, 68, 0.1);
+  border-left: 3px solid #ef4444;
+  border-radius: 0.25rem;
+  max-width: 800px;
+  margin: 1rem auto 0;
+}
+
+.analysis-input {
+  max-width: 800px;
+  margin: 0 auto 2rem;
+  padding: 1.5rem;
+  background: #0f172a;
+  border-radius: 0.75rem;
+  border: 1px solid #1e293b;
+}
+
+.analysis-input h2 {
+  font-size: 1.4rem;
+  margin-bottom: 1.5rem;
+  color: #f1f5f9;
+}
+
+.preset-matches {
+  margin-bottom: 1.5rem;
+}
+
+.preset-label {
+  font-size: 0.9rem;
+  color: #cbd5e1;
+  margin-bottom: 0.5rem;
+}
+
+.preset-buttons {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.preset-btn {
+  padding: 0.5rem 1rem;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 0.5rem;
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.preset-btn:hover {
+  background: #334155;
+  border-color: #22c55e;
+  color: #22c55e;
+}
+
+.analysis-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  color: #cbd5e1;
+  font-weight: 500;
+}
+
+.form-input {
+  padding: 0.75rem;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 0.5rem;
+  color: #e5e7eb;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #22c55e;
+  background: #0f172a;
+}
+
+.form-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.analyze-btn {
+  padding: 0.875rem 1.5rem;
+  background: #22c55e;
+  border: none;
+  border-radius: 0.5rem;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.analyze-btn:hover:not(:disabled) {
+  background: #16a34a;
+  transform: translateY(-2px);
+}
+
+.analyze-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.error-section {
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+}
+
+.error-card {
+  padding: 1.5rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid #ef4444;
+  border-radius: 0.75rem;
+}
+
+.error-card h3 {
+  color: #ef4444;
+  margin-bottom: 0.5rem;
+}
+
+.error-card p {
+  color: #fca5a5;
+}
+
+.loading-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 3rem;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  margin: 0 auto 1rem;
+  border: 4px solid #1e293b;
+  border-top: 4px solid #22c55e;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-section p {
+  color: #9ca3af;
+  font-size: 1rem;
+}
+
+.results-section {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.results-section > h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: #f1f5f9;
+}
+
+.result-card {
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 0.75rem;
+}
+
+.result-card h3 {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  color: #22c55e;
+}
+
+.result-card h4 {
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+  color: #cbd5e1;
+}
+
+.match-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.teams {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+  padding: 1rem;
+  background: #1e293b;
+  border-radius: 0.5rem;
+}
+
+.team-name {
+  color: #f1f5f9;
+}
+
+.vs {
+  color: #9ca3af;
+  font-weight: 400;
+  font-size: 0.9rem;
+}
+
+.match-date,
+.match-competition,
+.match-league {
+  color: #9ca3af;
+  font-size: 0.95rem;
+}
+
+.ml-score {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.score-bar-container {
+  width: 100%;
+  height: 30px;
+  background: #1e293b;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.score-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e 0%, #4ade80 100%);
+  transition: width 0.3s ease;
+}
+
+.score-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #22c55e;
+  text-align: center;
+}
+
+.score-description {
+  font-size: 0.9rem;
+  color: #9ca3af;
+  text-align: center;
+}
+
+.analysis-section {
+  margin-bottom: 1.5rem;
+}
+
+.analysis-section:last-child {
+  margin-bottom: 0;
+}
+
+.analysis-section p {
+  color: #cbd5e1;
+  line-height: 1.6;
+}
+
+.prediction-section {
+  padding: 1rem;
+  background: #1e293b;
+  border-radius: 0.5rem;
+}
+
+.prediction-details {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.prediction-label {
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.prediction-value {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.confidence-bar-container {
+  width: 100%;
+  height: 20px;
+  background: #1e293b;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.confidence-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
+  transition: width 0.3s ease;
+}
+
+.confidence-value {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #fbbf24;
+}
+
+.caveats-section {
+  padding: 1rem;
+  background: rgba(251, 191, 36, 0.1);
+  border-left: 3px solid #fbbf24;
+  border-radius: 0.25rem;
+}
+
+.educational-section {
+  padding: 1rem;
+  background: rgba(99, 102, 241, 0.1);
+  border-left: 3px solid #6366f1;
+  border-radius: 0.25rem;
+}
+
+.educational-text {
+  color: #a5b4fc;
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .sports-dashboard {
+    padding: 1rem;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .teams {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .vs {
+    display: none;
+  }
+
+  .preset-buttons {
+    flex-direction: column;
+  }
+
+  .preset-btn {
+    width: 100%;
+  }
+}

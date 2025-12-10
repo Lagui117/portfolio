@@ -8,16 +8,17 @@ function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <Link to="/" className="navbar-brand">
+        <Link to={isAuthenticated ? "/hub" : "/"} className="navbar-brand">
           PredictWise
         </Link>
         
         <div className="navbar-menu">
           {isAuthenticated ? (
             <>
-              <Link to="/dashboard" className="navbar-link">Dashboard</Link>
+              <Link to="/hub" className="navbar-link">Hub IA</Link>
               <Link to="/sports" className="navbar-link">Sports</Link>
               <Link to="/finance" className="navbar-link">Finance</Link>
+              <Link to="/dashboard" className="navbar-link">Dashboard</Link>
               <span className="navbar-user">Bonjour, {user?.username}</span>
               <button onClick={logout} className="btn btn-secondary">
                 Déconnexion

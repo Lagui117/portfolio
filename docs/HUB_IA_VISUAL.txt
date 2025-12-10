@@ -1,0 +1,215 @@
+┌─────────────────────────────────────────────────────────────────────────┐
+│                            🎯 PREDICTWISE                                │
+│              Plateforme éducative d'analyse sportive et financière       │
+│                           assistée par IA                                │
+│                                                                          │
+│         Bienvenue, [username] !                                          │
+│                                                                          │
+│  ⚠️  Les prédictions et analyses sont expérimentales et ne doivent      │
+│      pas être utilisées pour des décisions réelles                      │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────┐  ┌──────────────────────────────┐
+│       ⚽ Analyse Sportive      │  │    📈 Analyse Financière      │
+│                               │  │                               │
+│  Statistiques de match, forme │  │  Historique de prix,          │
+│  des équipes et analyse IA.   │  │  indicateurs et estimation    │
+│                               │  │  de tendance.                 │
+│                               │  │                               │
+│  ✓ Vue d'ensemble des matchs  │  │  ✓ Graphiques de prix et      │
+│    récents                    │  │    indicateurs simples        │
+│  ✓ Statistiques d'équipes et  │  │  ✓ Tendance estimée           │
+│    tendances                  │  │    (hausse/baisse)            │
+│  ✓ Analyse textuelle générée  │  │  ✓ Analyse IA pédagogique     │
+│    par IA                     │  │    sur le contexte            │
+│  ✓ Prédictions ML combinées   │  │  ✓ Indicateurs techniques     │
+│    à GPT                      │  │    (MA, RSI, volatilité)      │
+│                               │  │                               │
+│  [ Accéder à la partie Sports ]│  │ [ Accéder à la partie Bourse ]│
+│                               │  │                               │
+│  Border-top: GREEN            │  │  Border-top: BLUE             │
+└──────────────────────────────┘  └──────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    🤖 Suggestion IA du jour                              │
+│                                                                          │
+│  Sur les derniers matchs, plusieurs équipes montrent une forte          │
+│  variabilité de performance, tandis que certains titres boursiers       │
+│  évoluent dans une zone de volatilité modérée. Utilisez ces             │
+│  informations uniquement à des fins éducatives.                         │
+│                                                                          │
+│                        [ Propulsé par GPT-4 ]                            │
+│                                                                          │
+│  Background: Gradient + Animation pulsation                              │
+│  Border: Dashed #374151                                                 │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         📊 Vos statistiques                              │
+│                                                                          │
+│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐                   │
+│  │   42    │  │   25    │  │   17    │  │   68    │                   │
+│  │Prédictions│ │Analyses │  │Analyses │  │Consultations│                │
+│  │ totales │  │sportives│  │financières│ │         │                   │
+│  └─────────┘  └─────────┘  └─────────┘  └─────────┘                   │
+│                                                                          │
+│  Affichage conditionnel : seulement si utilisateur connecté             │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│  PredictWise - Plateforme éducative | Documentation | À propos          │
+└─────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════
+
+🎨 PALETTE DE COULEURS
+
+Background principal:    #020617 (Très sombre)
+Cartes background:       #0f172a
+Bordures cartes:         #1e293b
+Carte Sports (accent):   #22c55e (Vert)
+Carte Finance (accent):  #38bdf8 (Bleu ciel)
+Accent IA:               #4f46e5 (Indigo)
+Texte principal:         #e5e7eb
+Texte secondaire:        #9ca3af
+Texte tertiaire:         #6b7280
+
+═══════════════════════════════════════════════════════════════════════════
+
+🎭 ANIMATIONS
+
+1. Hover sur cartes Sports/Finance:
+   - transform: translateY(-6px)
+   - box-shadow: 0 26px 60px rgba(79, 70, 229, 0.3)
+   - border-color: #4f46e5
+   - background: #1e293b
+   - Transition: 0.15s ease
+
+2. Bloc Suggestion IA:
+   - Animation "pulse" sur le background (8s ease-in-out infinite)
+   - Icône 🤖 avec animation "float" (3s ease-in-out infinite)
+   - Badge GPT-4 avec fond semi-transparent
+
+3. Cartes Statistiques:
+   - Hover: translateY(-2px)
+   - Border change: #334155 → #4f46e5
+
+═══════════════════════════════════════════════════════════════════════════
+
+📱 RESPONSIVE
+
+Desktop (>768px):
+  - Grid 2 colonnes pour cartes principales
+  - Stats: 4 colonnes
+
+Tablette (480-768px):
+  - Grid 1 colonne pour cartes principales
+  - Stats: 2 colonnes
+
+Mobile (<480px):
+  - Layout vertical complet
+  - Titre réduit: 1.6rem
+  - Stats: 1 colonne
+  - Padding réduit
+
+═══════════════════════════════════════════════════════════════════════════
+
+🔄 FLUX DE NAVIGATION
+
+     HOME (/)
+        ↓
+   LOGIN/SIGNUP
+        ↓
+   Redirect → /hub
+        ↓
+    HOMEHUB
+    ↙    ↘
+/sports  /finance
+   ↓        ↓
+Analyse  Analyse
+sportive financière
+
+Logo PredictWise:
+  - Si authentifié → /hub
+  - Sinon → /
+
+Navbar:
+  Hub IA | Sports | Finance | Dashboard
+
+═══════════════════════════════════════════════════════════════════════════
+
+🔌 API ENDPOINTS
+
+Frontend → Backend:
+
+1. GET /api/v1/ai/daily-suggestion
+   Auth: Optionnelle
+   Response: { title: string, text: string }
+   
+2. GET /api/v1/users/stats
+   Auth: JWT Required
+   Response: {
+     total_predictions: number,
+     sports_predictions: number,
+     finance_predictions: number,
+     total_consultations: number,
+     member_since: ISO date
+   }
+
+═══════════════════════════════════════════════════════════════════════════
+
+📂 STRUCTURE DES FICHIERS
+
+frontend/src/
+├── pages/
+│   ├── HomeHub.jsx          # Composant principal (105 lignes)
+│   └── HomeHub.css          # Styles complets (350 lignes)
+├── services/
+│   └── aiService.js         # Service API IA (75 lignes)
+├── components/
+│   └── Navbar.jsx           # Modifié (lien Hub IA)
+└── App.jsx                  # Modifié (route /hub)
+
+backend/app/
+├── api/v1/
+│   ├── users.py             # Endpoint stats (65 lignes)
+│   └── ai.py                # Endpoint suggestion IA (100 lignes)
+└── main.py                  # Modifié (namespaces)
+
+docs/
+├── HUB_IA_DOCUMENTATION.md       # Doc technique complète
+├── HUB_IA_IMPLEMENTATION.md      # Guide implémentation
+├── HUB_IA_SUMMARY.md             # Résumé exécutif
+└── HUB_IA_VISUAL.txt             # Ce fichier
+
+═══════════════════════════════════════════════════════════════════════════
+
+✨ ESSENCE DU DESIGN PRÉSERVÉE
+
+✅ Concept original respecté à 100%
+✅ Structure visuelle identique
+✅ Palette de couleurs exacte
+✅ Textes et descriptions conservés
+✅ Layout et proportions maintenus
+
+AJOUTS:
+  ✨ Fonctionnalités dynamiques (API)
+  ✨ Animations CSS professionnelles
+  ✨ Statistiques utilisateur
+  ✨ Responsive design
+  ✨ Icônes visuelles
+  ✨ Badge GPT-4
+  ✨ Message de bienvenue personnalisé
+
+═══════════════════════════════════════════════════════════════════════════
+
+🚀 PRÊT POUR:
+
+✅ Développement local
+✅ Tests utilisateur
+✅ Intégration GPT future
+✅ Production
+✅ Mobile/Tablette
+✅ Extensions futures
+
+═══════════════════════════════════════════════════════════════════════════

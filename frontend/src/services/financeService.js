@@ -86,6 +86,30 @@ const financeService = {
       throw error;
     }
   },
+
+  /**
+   * Get comprehensive financial prediction for a stock (NEW - with GPT analysis).
+   * 
+   * This combines:
+   * - Stock data and technical indicators
+   * - ML model prediction
+   * - GPT-powered analysis and insights
+   * 
+   * @param {string} ticker - The stock ticker symbol (e.g., 'AAPL', 'GOOGL')
+   * @param {string} period - Time period for analysis (default: '1mo')
+   * @returns {Promise<Object>} Complete prediction with stock data, ML score, and GPT analysis
+   */
+  async getFinancePrediction(ticker, period = '1mo') {
+    try {
+      const response = await apiClient.get(`/finance/predict/${ticker}`, {
+        params: { period }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching finance prediction:', error);
+      throw error;
+    }
+  },
 };
 
 export default financeService;

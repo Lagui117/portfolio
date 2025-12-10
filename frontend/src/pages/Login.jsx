@@ -18,7 +18,7 @@ function Login() {
 
     try {
       await login(email, password)
-      navigate('/dashboard')
+      navigate('/hub')
     } catch (err) {
       setError(err.message || 'Échec de la connexion')
     } finally {
@@ -35,7 +35,7 @@ function Login() {
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Ou{' '}
-            <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500">
+            <Link to="/signup" className="font-medium text-blue-600 hover:text-blue-500">
               créer un nouveau compte
             </Link>
           </p>
@@ -82,24 +82,15 @@ function Login() {
           </div>
 
           <div>
-            <label htmlFor="password">Mot de passe</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              {loading ? 'Connexion...' : 'Se connecter'}
+            </button>
           </div>
-          
-          <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
-            {loading ? 'Connexion...' : 'Se connecter'}
-          </button>
         </form>
-        
-        <p className="auth-footer">
-          Pas encore de compte ? <Link to="/signup">S'inscrire</Link>
-        </p>
       </div>
     </div>
   )

@@ -5,11 +5,14 @@ import Navbar from './components/Navbar'
 
 // Pages
 import Home from './pages/Home'
+import HomeHub from './pages/HomeHub'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
 import Sports from './pages/Sports'
 import Finance from './pages/Finance'
+import SportsDashboard from './pages/SportsDashboard'
+import FinanceDashboard from './pages/FinanceDashboard'
 
 function App() {
   return (
@@ -24,6 +27,11 @@ function App() {
               <Route path="/signup" element={<Signup />} />
               
               {/* Protected routes */}
+              <Route path="/hub" element={
+                <PrivateRoute>
+                  <HomeHub />
+                </PrivateRoute>
+              } />
               <Route path="/dashboard" element={
                 <PrivateRoute>
                   <Dashboard />
@@ -31,12 +39,12 @@ function App() {
               } />
               <Route path="/sports" element={
                 <PrivateRoute>
-                  <Sports />
+                  <SportsDashboard />
                 </PrivateRoute>
               } />
               <Route path="/finance" element={
                 <PrivateRoute>
-                  <Finance />
+                  <FinanceDashboard />
                 </PrivateRoute>
               } />
               

@@ -4,6 +4,11 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 
+def get_db():
+    """Get database session for dependency injection."""
+    yield db.session
+
+
 def init_db(app):
     """Initialize database with Flask app."""
     db.init_app(app)
@@ -15,4 +20,4 @@ def init_db(app):
         # Create tables
         db.create_all()
         
-        print("✅ Database initialized successfully")
+        print("Database initialized successfully")

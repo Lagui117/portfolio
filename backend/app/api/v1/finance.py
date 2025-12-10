@@ -3,16 +3,23 @@ from flask import request
 from flask_restx import Namespace, Resource, fields
 from app.api.v1.auth import token_required
 from app.services.finance_service import FinanceService
+from app.services.finance_api_service import finance_api_service
+from app.services.gpt_service import gpt_service
+from app.services.prediction_service import get_prediction_service
 from app.core.database import db
 from app.models.consultation import Consultation
 from app.models.prediction import Prediction
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Create namespace
 api = Namespace('finance', description='Financial data and ML predictions')
 
-# Initialize service
+# Initialize services
 finance_service = FinanceService()
+prediction_service = get_prediction_service()
 
 # Define models for Swagger
 stock_data_model = api.model('StockData', {
@@ -271,6 +278,131 @@ class PredictionHistory(Resource):
                 prediction_type='finance'
             ).count()
         }, 200
+
+
+@api.route('/predict/<string:ticker>')
+class FinancePrediction(Resource):
+    """Get comprehensive financial prediction with GPT analysis."""
+    
+    @token_required
+    @api.doc(
+        security='Bearer',
+        params={
+            'period': 'Time period for analysis (default: 1mo)'
+        },
+        description="""Generate a comprehensive financial prediction combining:
+        - Stock market data and technical indicators
+        - Internal ML model prediction
+        - GPT-powered analysis and insights
+        
+        IMPORTANT: This is an EDUCATIONAL tool. Do not use for actual investment decisions."""
+    )
+    @api.response(200, 'Success')
+    @api.response(401, 'Unauthorized')
+    @api.response(404, 'Ticker not found')
+    @api.response(500, 'Server error')
+    def get(self, current_user, ticker):
+        """
+        Generate comprehensive prediction for a stock.
+        
+        This endpoint combines multiple data sources:
+        1. Stock data from finance API (yfinance or alternative)
+        2. Technical indicators calculation
+        3. ML model prediction
+        4. GPT analysis
+        
+        Returns a complete prediction with educational context.
+        """
+        try:
+            period = request.args.get('period', '1mo')
+            ticker = ticker.upper().strip()
+            
+            # 1. Fetch stock data from API
+            try:
+                stock_data = finance_api_service.get_stock_data(ticker, period)
+            except Exception as e:
+                return {
+                    'error': 'Failed to fetch stock data',
+                    'details': str(e),
+                    'ticker': ticker
+                }, 404
+            
+            # 2. Extract indicators for ML prediction
+            indicators = stock_data.get('indicators', {})
+            
+            # 3. Get ML prediction
+            ml_result = None
+            ml_score = None
+            try:
+                ml_result = prediction_service.predict_stock_movement(indicators)
+                ml_score = ml_result.get('prediction')
+            except Exception as e:
+                logger.error(f"ML prediction failed: {e}")
+                ml_result = {'error': 'ML prediction unavailable'}
+            
+            # 4. Get GPT analysis
+            gpt_analysis = None
+            try:
+                gpt_analysis = gpt_service.analyse_finance(stock_data, ml_score)
+            except Exception as e:
+                logger.error(f"GPT analysis failed: {e}")
+                gpt_analysis = {
+                    'error': 'GPT analysis unavailable',
+                    'educational_reminder': 'This is an educational platform. Do not use for real investments.'
+                }
+            
+            # 5. Log consultation
+            consultation = Consultation(
+                user_id=current_user.id,
+                consultation_type='finance',
+                endpoint=f'/api/v1/finance/predict/{ticker}',
+                query_params=json.dumps({'ticker': ticker, 'period': period})
+            )
+            db.session.add(consultation)
+            
+            # 6. Save prediction
+            prediction = Prediction(
+                user_id=current_user.id,
+                prediction_type='finance',
+                input_data=json.dumps(stock_data),
+                prediction_result=ml_result.get('prediction', 'UNKNOWN') if ml_result else 'UNKNOWN',
+                confidence_score=ml_result.get('confidence') if ml_result else None,
+                model_version='v1.0'
+            )
+            db.session.add(prediction)
+            db.session.commit()
+            
+            # 7. Construct response aligned with frontend expectations
+            response = {
+                'asset': {
+                    'ticker': ticker,
+                    'name': stock_data.get('name', ticker),
+                    'prices': stock_data.get('prices', []),
+                    'indicators': stock_data.get('indicators', {})
+                },
+                'model_score': ml_score,
+                'gpt_analysis': {
+                    'domain': gpt_analysis.get('domain', 'finance'),
+                    'summary': gpt_analysis.get('summary', 'Analyse non disponible'),
+                    'analysis': gpt_analysis.get('analysis', 'Analyse détaillée non disponible'),
+                    'prediction_type': gpt_analysis.get('prediction_type', 'trend'),
+                    'prediction_value': gpt_analysis.get('prediction_value', 'NEUTRAL'),
+                    'confidence': gpt_analysis.get('confidence', 0.0),
+                    'caveats': gpt_analysis.get('caveats', 'Prédictions expérimentales'),
+                    'educational_reminder': gpt_analysis.get('educational_reminder',
+                        'Cette plateforme est strictement éducative. Ne pas utiliser pour des investissements réels.')
+                }
+            }
+            
+            return response, 200
+            
+        except Exception as e:
+            logger.error(f"Error in finance prediction endpoint: {e}")
+            db.session.rollback()
+            return {
+                'error': 'Internal server error',
+                'details': str(e)
+            }, 500
 
 
 @api.route('/watchlist')

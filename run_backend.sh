@@ -24,13 +24,15 @@ pip install -q -r requirements.txt
 
 # Check if .env exists
 if [ ! -f ".env" ]; then
-    echo "Warning: .env file not found. Creating from .env.example..."
-    cp .env.example .env
+    echo "Warning: .env file not found. Creating default .env..."
+    cat > .env << EOF
+FLASK_ENV=development
+SECRET_KEY=dev-secret-key-change-in-production
+JWT_SECRET_KEY=jwt-secret-key-change-in-production
+DATABASE_URL=sqlite:///predictwise.db
+CORS_ORIGINS=http://localhost:5173
+EOF
 fi
-
-# Initialize database
-echo "Initializing database..."
-python -c "from app.core.database import init_db; init_db()"
 
 # Start Flask server
 echo ""

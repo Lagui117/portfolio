@@ -29,11 +29,11 @@ class SportsService:
             if os.path.exists(model_path):
                 self.model = joblib.load(model_path)
                 self.model_loaded = True
-                print(f"✅ Sports ML model loaded from {model_path}")
+                print(f"Sports ML model loaded from {model_path}")
             else:
-                print(f"⚠️  Sports model not found at {model_path}. Using fallback predictions.")
+                print(f"Sports model not found at {model_path}. Using fallback predictions.")
         except Exception as e:
-            print(f"⚠️  Failed to load sports model: {e}")
+            print(f"Failed to load sports model: {e}")
             self.model_loaded = False
     
     def get_upcoming_matches(

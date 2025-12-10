@@ -35,11 +35,11 @@ class FinanceService:
                 self.model = joblib.load(model_path)
                 self.scaler = joblib.load(scaler_path)
                 self.model_loaded = True
-                print(f"✅ Finance ML model and scaler loaded")
+                print(f"Finance ML model and scaler loaded")
             else:
-                print(f"⚠️  Finance model not found. Using fallback predictions.")
+                print(f"Finance model not found. Using fallback predictions.")
         except Exception as e:
-            print(f"⚠️  Failed to load finance model: {e}")
+            print(f"Failed to load finance model: {e}")
             self.model_loaded = False
     
     def get_stock_data(

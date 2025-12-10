@@ -63,6 +63,27 @@ const sportsService = {
       throw error;
     }
   },
+
+  /**
+   * Get comprehensive prediction for a match (NEW - with GPT analysis).
+   * 
+   * This combines:
+   * - Match data from external APIs
+   * - ML model prediction
+   * - GPT-powered analysis and insights
+   * 
+   * @param {string} matchId - The ID of the match to predict
+   * @returns {Promise<Object>} Complete prediction with match data, ML score, and GPT analysis
+   */
+  async getSportsPrediction(matchId) {
+    try {
+      const response = await apiClient.get(`/sports/predict/${matchId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching sports prediction:', error);
+      throw error;
+    }
+  },
 };
 
 export default sportsService;

@@ -9,8 +9,10 @@ cd "$(dirname "$0")/frontend" || exit
 
 # Check if .env exists
 if [ ! -f ".env" ]; then
-    echo "Warning: .env file not found. Creating from .env.example..."
-    cp .env.example .env
+    echo "Warning: .env file not found. Creating default .env..."
+    cat > .env << EOF
+VITE_API_BASE_URL=http://localhost:5000/api/v1
+EOF
 fi
 
 # Install dependencies if node_modules doesn't exist

@@ -1,4 +1,5 @@
 """Security utilities for authentication and password handling."""
+import re
 import bcrypt
 from datetime import datetime, timedelta
 from typing import Optional
@@ -105,7 +106,6 @@ def validate_email(email: str) -> bool:
     Returns:
         True if valid email format
     """
-    import re
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return re.match(pattern, email) is not None
 
