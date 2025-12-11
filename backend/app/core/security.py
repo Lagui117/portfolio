@@ -53,15 +53,18 @@ def create_access_token(user_id: int, expires_delta: Optional[timedelta] = None)
     Returns:
         JWT token string
     """
+    from datetime import timezone
+    
     if expires_delta is None:
         expires_delta = current_app.config['JWT_ACCESS_TOKEN_EXPIRES']
     
-    expire = datetime.utcnow() + expires_delta
+    now = datetime.now(timezone.utc)
+    expire = now + expires_delta
     
     payload = {
         'user_id': user_id,
         'exp': expire,
-        'iat': datetime.utcnow()
+        'iat': now
     }
     
     token = jwt.encode(

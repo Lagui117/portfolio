@@ -28,7 +28,7 @@ def test_signup_success(client):
     response = client.post('/api/v1/auth/signup', json={
         'email': 'test@example.com',
         'username': 'testuser',
-        'password': 'password123'
+        'password': 'Password123'
     })
     
     assert response.status_code == 201
@@ -43,14 +43,14 @@ def test_signup_duplicate_email(client):
     client.post('/api/v1/auth/signup', json={
         'email': 'test@example.com',
         'username': 'testuser1',
-        'password': 'password123'
+        'password': 'Password123'
     })
     
     # Second signup with same email
     response = client.post('/api/v1/auth/signup', json={
         'email': 'test@example.com',
         'username': 'testuser2',
-        'password': 'password123'
+        'password': 'Password123'
     })
     
     assert response.status_code == 400
@@ -62,13 +62,13 @@ def test_login_success(client):
     client.post('/api/v1/auth/signup', json={
         'email': 'test@example.com',
         'username': 'testuser',
-        'password': 'password123'
+        'password': 'Password123'
     })
     
     # Login
     response = client.post('/api/v1/auth/login', json={
         'email': 'test@example.com',
-        'password': 'password123'
+        'password': 'Password123'
     })
     
     assert response.status_code == 200
@@ -82,7 +82,7 @@ def test_login_invalid_credentials(client):
     client.post('/api/v1/auth/signup', json={
         'email': 'test@example.com',
         'username': 'testuser',
-        'password': 'password123'
+        'password': 'Password123'
     })
     
     # Login with wrong password

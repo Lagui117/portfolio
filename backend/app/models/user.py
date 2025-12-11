@@ -39,7 +39,8 @@ class User(db.Model):
     
     def update_last_login(self):
         """Update last login timestamp."""
-        self.last_login = datetime.utcnow()
+        from datetime import datetime, timezone
+        self.last_login = datetime.now(timezone.utc)
     
     def to_dict(self, include_stats=False):
         """Convert user to dictionary.

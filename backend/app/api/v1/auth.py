@@ -64,7 +64,7 @@ def token_required(f):
             return {'error': 'Token invalide ou expiré.'}, 401
         
         # Get user from database
-        current_user = User.query.get(payload['user_id'])
+        current_user = db.session.get(User, payload['user_id'])
         if not current_user or not current_user.is_active:
             return {'error': 'Utilisateur non trouvé ou inactif.'}, 401
         
@@ -74,6 +74,7 @@ def token_required(f):
 
 
 @api.route('/register')
+@api.route('/signup')  # Alias for compatibility
 class Register(Resource):
     """User registration endpoint."""
     
