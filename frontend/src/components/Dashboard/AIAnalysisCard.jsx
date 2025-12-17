@@ -78,9 +78,9 @@ function AIAnalysisCard() {
         </div>
 
         <div className="ai-disclaimer">
-          <span className="disclaimer-icon">ℹ️</span>
+          <span className="disclaimer-icon">⚡</span>
           <span className="disclaimer-text">
-            <strong>À titre indicatif</strong> — Ne constitue pas un conseil financier ou d'incitation au pari.
+            <strong>GPT-4 Analysis</strong> — Signal généré avec niveau de confiance
           </span>
         </div>
       </div>

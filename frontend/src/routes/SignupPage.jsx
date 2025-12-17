@@ -216,10 +216,10 @@ const SignupPage = () => {
             </div>
 
             <div className="auth-warning">
-              <span className="auth-warning-icon">ℹ️</span>
+              <span className="auth-warning-icon">🔒</span>
               <p className="auth-warning-text">
-                Les analyses sont fournies <strong>à titre indicatif</strong>. 
-                Ne constituent pas des conseils financiers ou d'incitation au pari.
+                Vos données sont <strong>chiffrées et sécurisées</strong>. 
+                Nous ne partageons jamais vos informations avec des tiers.
               </p>
             </div>
 
@@ -248,7 +248,7 @@ const SignupPage = () => {
         </div>
 
         <p className="auth-disclaimer">
-          Analyses à titre indicatif — Ne constitue pas un conseil financier
+          PredictWise — Analyse prédictive Sports & Finance
         </p>
       </div>
     </div>

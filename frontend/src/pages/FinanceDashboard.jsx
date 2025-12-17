@@ -44,9 +44,9 @@ export default function FinanceDashboard() {
   return (
     <div className="finance-dashboard">
       <header className="dashboard-header">
-        <h1>Tableau de bord - Analyse financière</h1>
+        <h1>Market Intelligence</h1>
         <p className="disclaimer">
-          Analyses fournies à titre indicatif. Ne constituent pas des conseils financiers.
+          Analyse financière propulsée par l'IA
         </p>
       </header>
 

@@ -92,7 +92,7 @@ function AppHubPage() {
 
       <div className="hub-footer">
         <p>
-          Analyses à titre indicatif. Ne constituent pas des conseils financiers.
+          Propulsé par GPT-4 • Données en temps réel
         </p>
       </div>
     </PageContainer>

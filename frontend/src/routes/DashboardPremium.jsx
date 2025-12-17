@@ -86,7 +86,7 @@ function DashboardPremium() {
             {sidebarCollapsed ? '→' : '←'}
           </button>
           {!sidebarCollapsed && (
-            <div className="pw-mode-badge">Mode analyse</div>
+            <div className="pw-mode-badge">Pro Analytics</div>
           )}
         </div>
       </aside>
@@ -398,10 +398,10 @@ function DashboardPremium() {
                 </div>
               </div>
               <div className="pw-disclaimer">
-                <span className="pw-disclaimer-icon">ℹ️</span>
+                <span className="pw-disclaimer-icon">⚡</span>
                 <p>
-                  <strong>Transparence</strong> – Informations à titre indicatif. 
-                  Ne constituent pas des conseils de pari ou d'investissement financier.
+                  <strong>Moteur GPT-4</strong> – Analyses générées en temps réel 
+                  avec indicateurs de confiance et facteurs explicatifs.
                 </p>
               </div>
             </div>

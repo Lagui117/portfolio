@@ -35,9 +35,9 @@ const LoginPage = () => {
             <Link to="/" className="auth-logo">
               <span className="gradient-text">PredictWise</span>
             </Link>
-            <h1 className="auth-title">Bon retour parmi nous</h1>
+            <h1 className="auth-title">Accédez à votre dashboard</h1>
             <p className="auth-subtitle">
-              Connectez-vous pour accéder à vos analyses
+              Connectez-vous pour retrouver vos analyses
             </p>
           </div>
 
@@ -155,7 +155,7 @@ const LoginPage = () => {
         </div>
 
         <p className="auth-disclaimer">
-          Analyses à titre indicatif — Ne constitue pas un conseil financier
+          PredictWise — Analyse prédictive Sports & Finance
         </p>
       </div>
     </div>

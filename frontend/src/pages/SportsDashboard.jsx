@@ -44,9 +44,9 @@ export default function SportsDashboard() {
   return (
     <div className="sports-dashboard">
       <header className="dashboard-header">
-        <h1>Tableau de bord - Analyse sportive</h1>
+        <h1>Sports Analytics</h1>
         <p className="disclaimer">
-          Analyses fournies à titre indicatif. Ne constituent pas une incitation au pari.
+          Analyse sportive propulsée par l'IA
         </p>
       </header>
 
