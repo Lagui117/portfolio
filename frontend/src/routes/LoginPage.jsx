@@ -1,139 +1,164 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import Navbar from '../components/Navbar';
 import '../styles/auth.css';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  
-  const { login } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
+    setLoading(true);
 
     try {
       await login(email, password);
-      navigate('/app');
+      navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.error || 'Erreur de connexion. Vérifiez vos identifiants.');
+      setError(err.response?.data?.message || 'Email ou mot de passe incorrect');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <>
-      <Navbar />
-      <div className="auth-page">
-        <div className="auth-container">
-          <Link to="/" className="auth-back">
-            ← Retour à l'accueil
-          </Link>
-          
-          <div className="auth-card">
-            <div className="auth-header">
-              <div className="auth-logo">
-                <div className="auth-logo-icon">📊</div>
-                <span className="auth-logo-text">PredictWise</span>
+    <div className="auth-page">
+      <div className="auth-container">
+        <div className="auth-card">
+          <div className="auth-header">
+            <Link to="/" className="auth-logo">
+              <span className="gradient-text">PredictWise</span>
+            </Link>
+            <h1 className="auth-title">Bon retour parmi nous</h1>
+            <p className="auth-subtitle">
+              Connectez-vous pour accéder à vos analyses
+            </p>
+          </div>
+
+          {error && (
+            <div className="alert alert-error">
+              <span className="alert-icon">⚠️</span>
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="auth-form">
+            <div className="form-group">
+              <label htmlFor="email" className="form-label">Email</label>
+              <div className="input-wrapper">
+                <span className="input-icon">📧</span>
+                <input
+                  type="email"
+                  id="email"
+                  className="form-input"
+                  placeholder="vous@exemple.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  autoComplete="email"
+                />
               </div>
-              <h1 className="auth-title">Connexion</h1>
-              <p className="auth-subtitle">
-                Accédez à votre espace de prédictions IA
-              </p>
             </div>
 
-            {error && (
-              <div className="auth-error">
-                ⚠️ {error}
+            <div className="form-group">
+              <label htmlFor="password" className="form-label">Mot de passe</label>
+              <div className="input-wrapper">
+                <span className="input-icon">🔒</span>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  id="password"
+                  className="form-input"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  className="input-action"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? '👁️' : '👁️‍🗨️'}
+                </button>
               </div>
-            )}
+            </div>
 
-            <form className="auth-form" onSubmit={handleSubmit}>
-              <div className="auth-field">
-                <label className="auth-label" htmlFor="email">
-                  Adresse email
-                </label>
-                <div className="auth-input-wrapper">
-                  <span className="auth-input-icon">✉️</span>
-                  <input
-                    id="email"
-                    type="email"
-                    className="auth-input"
-                    placeholder="vous@exemple.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    autoComplete="email"
-                  />
-                </div>
-              </div>
+            <div className="form-options">
+              <label className="checkbox-wrapper">
+                <input type="checkbox" className="checkbox" />
+                <span className="checkbox-label">Se souvenir de moi</span>
+              </label>
+              <Link to="/forgot-password" className="form-link">
+                Mot de passe oublié ?
+              </Link>
+            </div>
 
-              <div className="auth-field">
-                <label className="auth-label" htmlFor="password">
-                  Mot de passe
-                </label>
-                <div className="auth-input-wrapper">
-                  <span className="auth-input-icon">🔒</span>
-                  <input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    className="auth-input"
-                    placeholder="Votre mot de passe"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    autoComplete="current-password"
-                  />
-                  <button
-                    type="button"
-                    className="password-toggle"
-                    onClick={() => setShowPassword(!showPassword)}
-                    aria-label={showPassword ? 'Masquer' : 'Afficher'}
-                  >
-                    {showPassword ? '🙈' : '👁️'}
-                  </button>
-                </div>
-              </div>
+            <button
+              type="submit"
+              className={`btn btn-primary btn-full ${loading ? 'btn-loading' : ''}`}
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <span className="spinner" />
+                  Connexion...
+                </>
+              ) : (
+                'Se connecter'
+              )}
+            </button>
+          </form>
 
-              <div className="auth-options">
-                <label className="auth-remember">
-                  <input type="checkbox" />
-                  Se souvenir de moi
-                </label>
-                <Link to="/forgot-password" className="auth-forgot">
-                  Mot de passe oublié ?
-                </Link>
-              </div>
+          <div className="auth-divider">
+            <span>ou</span>
+          </div>
 
-              <button 
-                type="submit" 
-                className={`auth-submit ${isLoading ? 'loading' : ''}`}
-                disabled={isLoading}
+          <div className="auth-demo">
+            <p className="auth-demo-text">Tester avec un compte démo :</p>
+            <div className="auth-demo-accounts">
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={() => {
+                  setEmail('demo@predictwise.com');
+                  setPassword('Demo123!');
+                }}
               >
-                {isLoading ? (
-                  <span className="spinner"></span>
-                ) : (
-                  <>Se connecter →</>
-                )}
+                Compte Demo
               </button>
-            </form>
-
-            <div className="auth-footer">
-              Pas encore de compte ?{' '}
-              <Link to="/signup">Créer un compte</Link>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={() => {
+                  setEmail('admin@predictwise.com');
+                  setPassword('Admin123!');
+                }}
+              >
+                Compte Admin
+              </button>
             </div>
           </div>
+
+          <p className="auth-footer">
+            Pas encore de compte ?{' '}
+            <Link to="/signup" className="auth-footer-link">
+              Créer un compte
+            </Link>
+          </p>
         </div>
+
+        <p className="auth-disclaimer">
+          🎓 Projet éducatif — Aucune valeur financière
+        </p>
       </div>
-    </>
+    </div>
   );
 };
 

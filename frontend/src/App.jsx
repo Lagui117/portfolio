@@ -106,6 +106,9 @@ function App() {
         }
       />
       
+      {/* Redirections de compatibilite */}
+      <Route path="/dashboard" element={<Navigate to="/app" replace />} />
+      
       {/* Route par defaut */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
