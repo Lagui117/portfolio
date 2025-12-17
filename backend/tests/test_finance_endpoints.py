@@ -35,7 +35,7 @@ class TestFinancePredictEndpoint:
             'prediction_value': 'UP',
             'confidence': 0.65,
             'caveats': 'Volatilite du marche...',
-            'educational_reminder': 'Pas un conseil d\'investissement'
+            'disclaimer': 'Analyse a titre informatif uniquement.'
         }
         
         response = client.get(
@@ -81,7 +81,7 @@ class TestFinancePredictEndpoint:
             'prediction_value': 'NEUTRAL',
             'confidence': 0.50,
             'caveats': 'Incertitude elevee',
-            'educational_reminder': 'Educatif uniquement'
+            'disclaimer': 'Analyse a titre informatif.'
         }
         
         response = client.get(
@@ -163,7 +163,7 @@ class TestFinancePredictEndpoint:
                 'prediction_value': 'UP',
                 'confidence': 0.6,
                 'caveats': 'Test',
-                'educational_reminder': 'Test'
+                'disclaimer': 'Test'
             }
             
             response = client.get(

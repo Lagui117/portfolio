@@ -10,10 +10,15 @@ import SportsDashboardPage from './routes/SportsDashboardPage';
 import FinanceDashboardPage from './routes/FinanceDashboardPage';
 import DashboardPremium from './routes/DashboardPremium';
 import ProfilePage from './routes/ProfilePage';
-import AdminPage from './routes/AdminPage';
+
+// Admin Pages
+import AdminDashboard from './pages/AdminDashboard';
+import AdminUsers from './pages/AdminUsers';
+import AdminActivity from './pages/AdminActivity';
 
 // Components
 import Layout from './components/Layout';
+import AdminRoute from './components/AdminRoute';
 
 // Styles
 import './styles/global.css';
@@ -95,19 +100,42 @@ function App() {
           </PrivateRoute>
         }
       />
+      
+      {/* Routes Admin */}
       <Route
-        path="/app/admin"
+        path="/admin"
         element={
-          <PrivateRoute>
+          <AdminRoute>
             <Layout>
-              <AdminPage />
+              <AdminDashboard />
             </Layout>
-          </PrivateRoute>
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/admin/users"
+        element={
+          <AdminRoute>
+            <Layout>
+              <AdminUsers />
+            </Layout>
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/admin/activity"
+        element={
+          <AdminRoute>
+            <Layout>
+              <AdminActivity />
+            </Layout>
+          </AdminRoute>
         }
       />
       
       {/* Redirections de compatibilite */}
       <Route path="/dashboard" element={<Navigate to="/app" replace />} />
+      <Route path="/app/admin" element={<Navigate to="/admin" replace />} />
       
       {/* Route par defaut */}
       <Route path="*" element={<Navigate to="/" replace />} />

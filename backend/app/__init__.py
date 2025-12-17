@@ -1,3 +1,3 @@
 """
-PredictWise Backend - Plateforme educative d'analyse et de prediction.
+PredictWise Backend - Plateforme d'intelligence décisionnelle.
 """

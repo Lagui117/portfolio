@@ -1,8 +1,8 @@
 """
 Service GPT pour l'analyse IA.
-Utilise OpenAI pour generer des analyses educatives.
+Utilise OpenAI pour generer des analyses professionnelles.
 
-IMPORTANT: Ce service est strictement educatif.
+IMPORTANT: Ce service fournit des analyses a titre informatif.
 Les analyses ne constituent pas des conseils financiers ou de pari.
 """
 
@@ -43,22 +43,21 @@ class GPTService:
     
     def _get_system_prompt(self) -> str:
         """Prompt systeme definissant le comportement de l'assistant."""
-        return """Tu es un assistant d'analyse pour PredictWise, une plateforme EDUCATIVE 
-d'analyse de donnees sportives et financieres.
+        return """Tu es un assistant d'analyse pour PredictWise, une plateforme SaaS premium 
+d'intelligence decisionnelle pour les marches Sports et Finance.
 
 REGLES IMPORTANTES:
-1. Tu ne dois JAMAIS inciter les utilisateurs a parier ou investir de l'argent reel.
-2. Tes analyses sont strictement a but pedagogique et experimental.
-3. Tu dois TOUJOURS rappeler les limitations et les risques.
-4. Tu dois repondre UNIQUEMENT en JSON valide, selon le format demande.
-5. Sois factuel, nuance et mets en avant l'incertitude inherente aux predictions.
+1. Tu fournis des analyses factuelles et objectives.
+2. Tu rappelles que les analyses sont a titre informatif uniquement.
+3. Tu dois repondre UNIQUEMENT en JSON valide, selon le format demande.
+4. Sois factuel, precis et mets en avant le niveau de confiance.
 
-Ta mission est d'analyser des donnees et d'expliquer les facteurs qui peuvent influencer 
-un resultat sportif ou une tendance boursiere, dans un but d'apprentissage uniquement."""
+Ta mission est d'analyser des donnees et d'identifier les facteurs cles qui peuvent influencer 
+un resultat sportif ou une tendance boursiere."""
 
     def _create_sports_prompt(self, match_data: Dict[str, Any], model_score: Optional[float]) -> str:
         """Cree le prompt pour l'analyse sportive."""
-        prompt = f"""Analyse ce match sportif de maniere educative:
+        prompt = f"""Analyse ce match sportif:
 
 DONNEES DU MATCH:
 {json.dumps(match_data, indent=2, ensure_ascii=False, default=str)}
@@ -76,7 +75,7 @@ DONNEES DU MATCH:
   "prediction_value": nombre entre 0 et 1,
   "confidence": nombre entre 0 et 1,
   "caveats": "limitations importantes de cette analyse",
-  "educational_reminder": "rappel que c'est experimental et educatif"
+  "disclaimer": "Analyse a titre informatif uniquement"
 }"""
         return prompt
 
@@ -91,7 +90,7 @@ DONNEES DU MATCH:
             'indicators': stock_data.get('indicators', {}),
         }
         
-        prompt = f"""Analyse ces donnees boursieres de maniere educative:
+        prompt = f"""Analyse ces donnees boursieres:
 
 DONNEES FINANCIERES:
 {json.dumps(simplified_data, indent=2, ensure_ascii=False, default=str)}
@@ -109,7 +108,7 @@ DONNEES FINANCIERES:
   "prediction_value": "UP", "DOWN" ou "NEUTRAL",
   "confidence": nombre entre 0 et 1,
   "caveats": "limitations importantes de cette analyse",
-  "educational_reminder": "rappel que c'est experimental et educatif, pas un conseil d'investissement"
+  "disclaimer": "Analyse a titre informatif. Ne constitue pas un conseil d'investissement."
 }"""
         return prompt
 
@@ -135,7 +134,7 @@ DONNEES FINANCIERES:
             # Validation des champs obligatoires
             required_fields = [
                 'domain', 'summary', 'analysis', 'prediction_type',
-                'prediction_value', 'confidence', 'caveats', 'educational_reminder'
+                'prediction_value', 'confidence', 'caveats', 'disclaimer'
             ]
             
             for field in required_fields:
@@ -164,7 +163,7 @@ DONNEES FINANCIERES:
             "prediction_value": 0.5 if domain == "sports" else "NEUTRAL",
             "confidence": 0.0,
             "caveats": "Analyse automatique indisponible. Ne pas utiliser pour des decisions reelles.",
-            "educational_reminder": "Cette plateforme est a but educatif uniquement."
+            "disclaimer": "Analyse a titre informatif uniquement."
         }
 
     def analyse_sport(self, match_data: Dict[str, Any], model_score: Optional[float] = None) -> Dict[str, Any]:

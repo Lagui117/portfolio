@@ -162,10 +162,12 @@ function SportsDashboardPage() {
                 <p>{prediction.gpt_analysis.caveats}</p>
               </div>
 
-              <div className="analysis-reminder">
-                <h4>Rappel educatif</h4>
-                <p>{prediction.gpt_analysis.educational_reminder}</p>
-              </div>
+              {prediction.gpt_analysis.disclaimer && (
+                <div className="analysis-reminder">
+                  <h4>Avertissement</h4>
+                  <p>{prediction.gpt_analysis.disclaimer}</p>
+                </div>
+              )}
             </div>
           )}
 

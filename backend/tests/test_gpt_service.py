@@ -21,7 +21,7 @@ class TestGPTService:
         
         assert result['domain'] == 'sports'
         assert 'summary' in result
-        assert 'educational_reminder' in result
+        assert 'disclaimer' in result
     
     def test_analyse_finance_fallback_mode(self, sample_stock_data):
         """Analyse financiere en mode fallback."""

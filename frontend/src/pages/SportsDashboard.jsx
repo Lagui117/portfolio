@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import sportsService from '../services/sportsService'
+import AIChatButton from '../components/AIChatButton'
 import './SportsDashboard.css'
 
 export default function SportsDashboard() {
@@ -224,16 +225,30 @@ export default function SportsDashboard() {
                 </div>
               )}
 
-              {predictionData.gpt_analysis.educational_reminder && (
-                <div className="analysis-section educational-section">
+              {predictionData.gpt_analysis.disclaimer && (
+                <div className="analysis-section disclaimer-section">
                   <h4>Avertissement</h4>
-                  <p className="educational-text">{predictionData.gpt_analysis.educational_reminder}</p>
+                  <p className="disclaimer-text">{predictionData.gpt_analysis.disclaimer}</p>
                 </div>
               )}
             </div>
           )}
         </section>
       )}
+
+      {/* Copilote IA */}
+      <AIChatButton 
+        domain="sports"
+        context={{
+          page: 'sports',
+          current_analysis: predictionData ? {
+            type: 'sports',
+            match_id: matchId,
+            prediction: predictionData.ml_prediction,
+            confidence: predictionData.confidence_percent
+          } : null
+        }}
+      />
     </div>
   )
 }

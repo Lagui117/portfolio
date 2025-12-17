@@ -447,14 +447,14 @@
   border-radius: 0.25rem;
 }
 
-.educational-section {
+.disclaimer-section {
   padding: 1rem;
   background: rgba(99, 102, 241, 0.1);
   border-left: 3px solid #6366f1;
   border-radius: 0.25rem;
 }
 
-.educational-text {
+.disclaimer-text {
   color: #a5b4fc;
   font-style: italic;
 }

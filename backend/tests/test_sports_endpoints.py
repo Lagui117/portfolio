@@ -35,7 +35,7 @@ class TestSportsPredictEndpoint:
             'prediction_value': 0.68,
             'confidence': 0.75,
             'caveats': 'Facteurs d\'incertitude...',
-            'educational_reminder': 'Ceci est educatif uniquement'
+            'disclaimer': 'Analyse a titre informatif uniquement.'
         }
         
         response = client.get(
@@ -155,7 +155,7 @@ class TestSportsPredictEndpoint:
             'prediction_value': 0.70,
             'confidence': 0.75,
             'caveats': 'Test',
-            'educational_reminder': 'Test'
+            'disclaimer': 'Test'
         }
         
         response = client.get(

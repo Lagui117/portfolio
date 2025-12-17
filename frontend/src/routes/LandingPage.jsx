@@ -27,11 +27,11 @@ const LandingPage = () => {
             </p>
 
             <div className="hero-cta">
-              <Link to="/signup" className="btn btn-primary btn-lg">
-                Commencer l'analyse →
+              <Link to="/signup" className="btn btn-primary btn-xl">
+                DÉMARRER MAINTENANT →
               </Link>
-              <Link to="/login" className="btn btn-secondary btn-lg">
-                Accéder au dashboard
+              <Link to="/login" className="btn btn-secondary btn-xl">
+                ACCÈS DASHBOARD
               </Link>
             </div>
 

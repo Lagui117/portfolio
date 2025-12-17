@@ -41,7 +41,7 @@ class TestFinancePredict:
         assert gpt['domain'] == 'finance'
         assert 'summary' in gpt
         assert 'prediction_type' in gpt
-        assert 'educational_reminder' in gpt
+        assert 'disclaimer' in gpt
     
     def test_predict_trend_value(self, client, auth_headers):
         """Test que la prediction de tendance est valide."""

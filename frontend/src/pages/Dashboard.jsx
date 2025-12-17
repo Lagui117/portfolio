@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import authService from '../services/authService'
+import AIChatButton from '../components/AIChatButton'
 
 function Dashboard() {
   const { user, updateUser } = useAuth()
@@ -142,6 +143,12 @@ function Dashboard() {
           </div>
         </Link>
       </div>
+
+      {/* Copilote IA */}
+      <AIChatButton 
+        domain="general"
+        context={{ page: 'dashboard', user: user?.username }}
+      />
     </div>
   )
 }

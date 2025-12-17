@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../hooks/useAuth'
+import './Auth.css'
 
 function Login() {
   const [email, setEmail] = useState('')
@@ -17,9 +18,22 @@ function Login() {
     setLoading(true)
 
     try {
-      await login(email, password)
-      navigate('/hub')
+      const result = await login(email, password)
+      
+      if (result.success) {
+        console.log('[Login] Success, redirecting. User:', result.user)
+        // Rediriger admin vers /admin, user vers /app
+        const redirectPath = result.user?.is_admin ? '/admin' : '/app'
+        navigate(redirectPath)
+      } else {
+        // Extraire le message d'erreur
+        const errorMsg = typeof result.error === 'object' 
+          ? result.error.message || 'Échec de la connexion'
+          : result.error || 'Échec de la connexion'
+        setError(errorMsg)
+      }
     } catch (err) {
+      console.error('[Login] Exception:', err)
       setError(err.message || 'Échec de la connexion')
     } finally {
       setLoading(false)

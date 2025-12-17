@@ -121,7 +121,7 @@ class GPTAnalysisSchema:
     prediction_value: Any
     confidence: float
     caveats: str
-    educational_reminder: str
+    disclaimer: str
     ml_score: Optional[float] = None
     data_source: str = "gpt_analysis"
     
@@ -136,7 +136,7 @@ class SportsPredictionResponseSchema:
     match: MatchInfoSchema
     model_score: float
     gpt_analysis: GPTAnalysisSchema
-    disclaimer: str = "Prediction experimentale a but educatif uniquement."
+    disclaimer: str = "Prediction a titre informatif uniquement."
     
     def to_dict(self) -> Dict[str, Any]:
         """Convertit en dictionnaire."""
@@ -154,7 +154,7 @@ class FinancePredictionResponseSchema:
     asset: AssetInfoSchema
     model_score: float
     gpt_analysis: GPTAnalysisSchema
-    disclaimer: str = "Analyse experimentale a but educatif uniquement. Ne constitue pas un conseil d'investissement."
+    disclaimer: str = "Analyse a titre informatif. Ne constitue pas un conseil d'investissement."
     
     def to_dict(self) -> Dict[str, Any]:
         """Convertit en dictionnaire."""

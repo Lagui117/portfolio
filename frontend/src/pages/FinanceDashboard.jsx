@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import financeService from '../services/financeService'
+import AIChatButton from '../components/AIChatButton'
 import './FinanceDashboard.css'
 
 export default function FinanceDashboard() {
@@ -305,16 +306,30 @@ export default function FinanceDashboard() {
                 </div>
               )}
 
-              {predictionData.gpt_analysis.educational_reminder && (
-                <div className="analysis-section educational-section">
+              {predictionData.gpt_analysis.disclaimer && (
+                <div className="analysis-section disclaimer-section">
                   <h4>Avertissement</h4>
-                  <p className="educational-text">{predictionData.gpt_analysis.educational_reminder}</p>
+                  <p className="disclaimer-text">{predictionData.gpt_analysis.disclaimer}</p>
                 </div>
               )}
             </div>
           )}
         </section>
       )}
+
+      {/* Copilote IA */}
+      <AIChatButton 
+        domain="finance"
+        context={{
+          page: 'finance',
+          current_analysis: predictionData ? {
+            type: 'finance',
+            symbol: ticker,
+            prediction: predictionData.ml_prediction,
+            confidence: predictionData.confidence_percent
+          } : null
+        }}
+      />
     </div>
   )
 }

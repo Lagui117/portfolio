@@ -32,9 +32,13 @@ function Signup() {
     const result = await signup(formData)
     
     if (result.success) {
-      navigate('/hub')
+      console.log('[Signup] Success, redirecting')
+      navigate('/app')
     } else {
-      setError(result.error)
+      const errorMsg = typeof result.error === 'object'
+        ? result.error.message || 'Échec de l\'inscription'
+        : result.error || 'Échec de l\'inscription'
+      setError(errorMsg)
     }
     
     setLoading(false)

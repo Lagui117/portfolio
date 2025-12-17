@@ -92,8 +92,8 @@ const Navbar = () => {
                   👤 Mon profil
                 </Link>
                 {user.role === 'admin' && (
-                  <Link to="/app/admin" className="navbar-dropdown-item" onClick={() => setIsDropdownOpen(false)}>
-                    ⚙️ Administration
+                  <Link to="/admin" className="navbar-dropdown-item" onClick={() => setIsDropdownOpen(false)}>
+                    🛡️ Administration
                   </Link>
                 )}
                 <div className="navbar-dropdown-divider" />

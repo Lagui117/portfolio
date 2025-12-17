@@ -1,9 +1,9 @@
 """
 PredictWise Backend - Application Factory
-Plateforme educative d'analyse et de prediction (sports et finance).
+Plateforme SaaS d'intelligence décisionnelle (Sports & Finance).
 
-AVERTISSEMENT: Ce projet est strictement educatif. Les predictions ne constituent
-pas des conseils financiers ou de pari.
+AVERTISSEMENT: Les analyses fournies sont à titre informatif uniquement.
+Elles ne constituent pas des conseils financiers ou de paris.
 """
 
 import os
@@ -116,11 +116,15 @@ def create_app(config_override: Optional[Dict[str, Any]] = None) -> Flask:
     from app.api.v1.sports import sports_bp
     from app.api.v1.finance import finance_bp
     from app.api.v1.users import users_bp
+    from app.api.v1.chat import chat_bp
+    from app.api.v1.admin import admin_bp
     
     app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
     app.register_blueprint(sports_bp, url_prefix='/api/v1/sports')
     app.register_blueprint(finance_bp, url_prefix='/api/v1/finance')
     app.register_blueprint(users_bp, url_prefix='/api/v1/users')
+    app.register_blueprint(chat_bp, url_prefix='/api/v1/chat')
+    app.register_blueprint(admin_bp, url_prefix='/api/v1/admin')
     
     # Enregistrer les gestionnaires d'erreurs centralisés
     register_error_handlers(app)
@@ -144,9 +148,10 @@ def create_app(config_override: Optional[Dict[str, Any]] = None) -> Flask:
                 'auth': '/api/v1/auth',
                 'sports': '/api/v1/sports',
                 'finance': '/api/v1/finance',
+                'chat': '/api/v1/chat',
                 'health': '/health'
             },
-            'disclaimer': 'Plateforme educative - Les predictions ne constituent pas des conseils financiers ou de pari.'
+            'disclaimer': 'Plateforme d\'analyse décisionnelle.'
         })
     
     logger.info('Application PredictWise initialisee avec succes')

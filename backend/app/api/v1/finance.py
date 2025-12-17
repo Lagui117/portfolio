@@ -54,7 +54,7 @@ def predict_stock(current_user, ticker):
                 "prediction_value": "UP" ou "DOWN" ou "NEUTRAL",
                 "confidence": 0.6,
                 "caveats": "...",
-                "educational_reminder": "..."
+                "disclaimer": "..."
             }
         }
     """
@@ -121,7 +121,7 @@ def predict_stock(current_user, ticker):
             },
             'model_score': model_score,
             'gpt_analysis': gpt_analysis,
-            'disclaimer': 'Analyse experimentale a but educatif uniquement. Ne constitue pas un conseil d\'investissement.'
+            'disclaimer': 'Analyse à titre informatif. Ne constitue pas un conseil d\'investissement.'
         }
         
         return jsonify(response), 200

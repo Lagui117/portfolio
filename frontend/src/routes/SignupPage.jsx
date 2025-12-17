@@ -58,9 +58,19 @@ const SignupPage = () => {
     setLoading(true);
 
     try {
-      await register(formData.username, formData.email, formData.password);
-      navigate('/dashboard');
+      const result = await register(formData.username, formData.email, formData.password);
+      
+      if (result.success) {
+        console.log('[SignupPage] Success, redirecting');
+        navigate('/app');
+      } else {
+        const errorMsg = typeof result.error === 'object'
+          ? result.error.message || 'Erreur lors de l\'inscription'
+          : result.error || 'Erreur lors de l\'inscription';
+        setError(errorMsg);
+      }
     } catch (err) {
+      console.error('[SignupPage] Exception:', err);
       setError(err.response?.data?.message || 'Erreur lors de l\'inscription');
     } finally {
       setLoading(false);

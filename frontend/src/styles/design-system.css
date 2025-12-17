@@ -3,41 +3,42 @@
    ============================================ */
 
 :root {
-  /* === COLORS === */
-  --color-bg-primary: #0a0f1a;
-  --color-bg-secondary: #111827;
-  --color-bg-tertiary: #1f2937;
-  --color-bg-card: rgba(17, 24, 39, 0.8);
-  --color-bg-card-hover: rgba(31, 41, 55, 0.9);
-  --color-bg-glass: rgba(255, 255, 255, 0.03);
+  /* === COLORS - Premium Dark === */
+  --color-bg-primary: #050810;
+  --color-bg-secondary: #0d1117;
+  --color-bg-tertiary: #161b22;
+  --color-bg-card: #0d1117;
+  --color-bg-card-hover: #161b22;
+  --color-bg-glass: rgba(13, 17, 23, 0.95);
   
-  /* Text */
-  --color-text-primary: #f9fafb;
-  --color-text-secondary: #e5e7eb;
-  --color-text-muted: #9ca3af;
-  --color-text-dark: #111827;
+  /* Text - Maximum Contrast */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #f0f0f0;
+  --color-text-muted: #8b949e;
+  --color-text-dark: #000000;
   
-  /* Brand */
-  --color-primary: #3b82f6;
-  --color-primary-light: #60a5fa;
-  --color-primary-dark: #2563eb;
-  --color-primary-gradient: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  /* Brand - Vibrant */
+  --color-primary: #2563eb;
+  --color-primary-light: #3b82f6;
+  --color-primary-dark: #1d4ed8;
+  --color-primary-gradient: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
   
-  /* Accents */
-  --color-accent-purple: #8b5cf6;
-  --color-accent-cyan: #06b6d4;
-  --color-accent-green: #10b981;
-  --color-accent-orange: #f59e0b;
+  /* Accents - Bold */
+  --color-accent-purple: #7c3aed;
+  --color-accent-cyan: #0891b2;
+  --color-accent-green: #059669;
+  --color-accent-orange: #d97706;
   
   /* States */
-  --color-success: #10b981;
-  --color-error: #ef4444;
-  --color-warning: #f59e0b;
-  --color-info: #3b82f6;
+  --color-success: #059669;
+  --color-error: #dc2626;
+  --color-warning: #d97706;
+  --color-info: #2563eb;
   
-  /* Borders */
-  --color-border: rgba(255, 255, 255, 0.1);
-  --color-border-light: rgba(255, 255, 255, 0.15);
+  /* Borders - SOLID, not translucent */
+  --color-border: #21262d;
+  --color-border-light: #30363d;
+  --color-border-input: #30363d;
   
   /* === TYPOGRAPHY === */
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -86,13 +87,15 @@
   --radius-3xl: 1.5rem;
   --radius-full: 9999px;
   
-  /* === SHADOWS === */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4);
-  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 40px rgba(59, 130, 246, 0.15);
-  --shadow-glow-strong: 0 0 60px rgba(59, 130, 246, 0.25);
+  /* === SHADOWS - Sharp, not soft === */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.6);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.7);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.8);
+  --shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.9);
+  --shadow-2xl: 0 24px 48px rgba(0, 0, 0, 0.95);
+  --shadow-glow: 0 0 30px rgba(37, 99, 235, 0.3);
+  --shadow-glow-strong: 0 0 50px rgba(37, 99, 235, 0.5);
+  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.8), 0 0 1px rgba(0, 0, 0, 0.9);
   
   /* === TRANSITIONS === */
   --transition-fast: 150ms ease;

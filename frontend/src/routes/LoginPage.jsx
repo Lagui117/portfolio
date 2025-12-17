@@ -18,9 +18,21 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      await login(email, password);
-      navigate('/dashboard');
+      const result = await login(email, password);
+      
+      if (result.success) {
+        console.log('[LoginPage] Success, redirecting. User:', result.user);
+        // Rediriger admin vers /admin, user vers /app
+        const redirectPath = result.user?.is_admin ? '/admin' : '/app';
+        navigate(redirectPath);
+      } else {
+        const errorMsg = typeof result.error === 'object'
+          ? result.error.message || 'Email ou mot de passe incorrect'
+          : result.error || 'Email ou mot de passe incorrect';
+        setError(errorMsg);
+      }
     } catch (err) {
+      console.error('[LoginPage] Exception:', err);
       setError(err.response?.data?.message || 'Email ou mot de passe incorrect');
     } finally {
       setLoading(false);

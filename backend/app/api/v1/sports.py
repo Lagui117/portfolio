@@ -56,7 +56,7 @@ def predict_match(current_user, match_id):
                 "prediction_value": 0.68,
                 "confidence": 0.7,
                 "caveats": "...",
-                "educational_reminder": "..."
+                "disclaimer": "..."
             }
         }
     """
@@ -124,7 +124,7 @@ def predict_match(current_user, match_id):
             },
             'model_score': model_score,
             'gpt_analysis': gpt_analysis,
-            'disclaimer': 'Prediction experimentale a but educatif uniquement.'
+            'disclaimer': 'Analyse à titre informatif uniquement.'
         }
         
         return jsonify(response), 200

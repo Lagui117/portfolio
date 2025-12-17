@@ -50,10 +50,10 @@
 
 .auth-card {
   background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
+  border: 2px solid var(--color-border);
   border-radius: var(--radius-2xl);
   padding: var(--space-10);
-  box-shadow: var(--shadow-xl);
+  box-shadow: var(--shadow-2xl);
 }
 
 /* Header */
@@ -127,9 +127,9 @@
   padding-left: var(--space-12);
   font-family: var(--font-family);
   font-size: var(--font-size-base);
-  color: var(--color-text-primary);
+  color: #ffffff;
   background: var(--color-bg-tertiary);
-  border: 2px solid var(--color-border);
+  border: 2px solid #30363d;
   border-radius: var(--radius-lg);
   transition: all var(--transition-fast);
   outline: none;
@@ -140,12 +140,12 @@
 }
 
 .auth-input:hover {
-  border-color: var(--color-border-light);
+  border-color: #484f58;
 }
 
 .auth-input:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
 }
 
 .auth-input.error {

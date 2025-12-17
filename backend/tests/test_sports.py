@@ -42,7 +42,7 @@ class TestSportsPredict:
         assert 'summary' in gpt
         assert 'analysis' in gpt
         assert 'confidence' in gpt
-        assert 'educational_reminder' in gpt
+        assert 'disclaimer' in gpt
     
     def test_predict_model_score_range(self, client, auth_headers):
         """Test que le model_score est dans une plage valide."""
