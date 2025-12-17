@@ -216,10 +216,10 @@ const SignupPage = () => {
             </div>
 
             <div className="auth-warning">
-              <span className="auth-warning-icon">⚠️</span>
+              <span className="auth-warning-icon">ℹ️</span>
               <p className="auth-warning-text">
-                Ce projet est <strong>purement éducatif</strong>. Les analyses ne constituent 
-                pas des conseils d'investissement ou de paris.
+                Les analyses sont fournies <strong>à titre indicatif</strong>. 
+                Ne constituent pas des conseils financiers ou d'incitation au pari.
               </p>
             </div>
 
@@ -248,7 +248,7 @@ const SignupPage = () => {
         </div>
 
         <p className="auth-disclaimer">
-          🎓 Projet éducatif — Aucune valeur financière
+          Analyses à titre indicatif — Ne constitue pas un conseil financier
         </p>
       </div>
     </div>

@@ -155,7 +155,7 @@ const LoginPage = () => {
         </div>
 
         <p className="auth-disclaimer">
-          🎓 Projet éducatif — Aucune valeur financière
+          Analyses à titre indicatif — Ne constitue pas un conseil financier
         </p>
       </div>
     </div>

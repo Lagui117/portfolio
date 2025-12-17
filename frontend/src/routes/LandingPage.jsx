@@ -13,18 +13,17 @@ const LandingPage = () => {
           <div className="hero-content">
             <div className="hero-badge">
               <span className="hero-badge-dot" />
-              Plateforme IA Éducative
+              Intelligence Artificielle
             </div>
 
             <h1 className="hero-title">
-              Analysez. Comprenez.<br />
-              <span className="gradient-text">Apprenez l'IA.</span>
+              Analysez. Anticipez.<br />
+              <span className="gradient-text">Décidez mieux.</span>
             </h1>
 
             <p className="hero-subtitle">
-              Découvrez comment l'intelligence artificielle analyse les données sportives 
-              et financières. Une plateforme éducative pour comprendre le potentiel du machine learning.
-            </p>
+              Analyse prédictive Sports & Finance propulsée par l'IA. 
+              Des insights data-driven pour éclairer vos décisions.
 
             <div className="hero-cta">
               <Link to="/signup" className="btn btn-primary btn-lg">
@@ -38,15 +37,15 @@ const LandingPage = () => {
             <div className="hero-stats">
               <div className="hero-stat">
                 <div className="hero-stat-value">2</div>
-                <div className="hero-stat-label">Domaines d'analyse</div>
+                <div className="hero-stat-label">Domaines</div>
               </div>
               <div className="hero-stat">
                 <div className="hero-stat-value">GPT-4</div>
-                <div className="hero-stat-label">Powered by</div>
+                <div className="hero-stat-label">Moteur IA</div>
               </div>
               <div className="hero-stat">
-                <div className="hero-stat-value">100%</div>
-                <div className="hero-stat-label">Éducatif</div>
+                <div className="hero-stat-value">24/7</div>
+                <div className="hero-stat-label">Disponible</div>
               </div>
             </div>
           </div>
@@ -146,7 +145,7 @@ const LandingPage = () => {
             <h3 className="card-title">Propulsé par GPT-4</h3>
             <p className="card-description">
               Notre moteur utilise les dernières avancées en intelligence artificielle 
-              pour générer des analyses détaillées et pédagogiques.
+              pour générer des analyses détaillées et contextualisées.
             </p>
           </div>
 
@@ -160,11 +159,11 @@ const LandingPage = () => {
           </div>
 
           <div className="card feature-card">
-            <div className="card-icon">🎓</div>
-            <h3 className="card-title">100% Éducatif</h3>
+            <div className="card-icon">📋</div>
+            <h3 className="card-title">Analyses détaillées</h3>
             <p className="card-description">
-              Chaque analyse explique la méthodologie utilisée. Apprenez comment 
-              fonctionne l'IA, pas seulement ses résultats.
+              Chaque prédiction est accompagnée d'une analyse complète : 
+              méthodologie, facteurs clés et niveau de confiance.
             </p>
           </div>
 
@@ -208,9 +207,9 @@ const LandingPage = () => {
 
           <div className="step-card">
             <div className="step-number">3</div>
-            <h3 className="step-title">Explorez les analyses</h3>
+            <h3 className="step-title">Obtenez vos analyses</h3>
             <p className="step-description">
-              Posez vos questions et découvrez comment l'IA génère ses prédictions éducatives.
+              Recevez des prédictions détaillées avec analyses IA et indicateurs de confiance.
             </p>
           </div>
         </div>
@@ -242,8 +241,8 @@ const LandingPage = () => {
                   <span className="example-result-value positive">73%</span>
                 </div>
                 <p className="example-reasoning">
-                  L'IA a analysé 50 matchs historiques, les performances récentes (5 derniers matchs), 
-                  les statistiques des joueurs clés et les conditions du match pour générer cette analyse éducative.
+                  Analyse basée sur 50 matchs historiques, performances récentes, 
+                  statistiques des joueurs clés et conditions du match.
                 </p>
               </div>
             </div>
@@ -276,28 +275,23 @@ const LandingPage = () => {
       {/* DISCLAIMER */}
       <section className="disclaimer">
         <div className="disclaimer-content">
-          <div className="disclaimer-icon">⚠️</div>
-          <h3 className="disclaimer-title">Important : Projet Éducatif</h3>
+          <div className="disclaimer-icon">ℹ️</div>
+          <h3 className="disclaimer-title">Transparence</h3>
           <p className="disclaimer-text">
-            PredictWise est une plateforme <strong>purement éducative</strong> conçue pour démontrer 
-            les capacités de l'intelligence artificielle. Les analyses générées ne constituent 
-            <strong> en aucun cas</strong> des conseils d'investissement ou des recommandations de paris. 
-            <br /><br />
-            <strong>Ne prenez jamais de décisions financières</strong> basées sur ces analyses. 
-            Ce projet est destiné à l'apprentissage et la démonstration technologique uniquement.
-            Les performances passées ne garantissent pas les résultats futurs.
+            Informations fournies à titre indicatif uniquement. Ne constitue pas un conseil financier.
+            Aucun encouragement au pari. Les performances passées ne préjugent pas des résultats futurs.
           </p>
         </div>
       </section>
 
       {/* CTA */}
       <section className="cta-section">
-        <h2 className="cta-title">Prêt à explorer ?</h2>
+        <h2 className="cta-title">Prêt à commencer ?</h2>
         <p className="cta-subtitle">
-          Rejoignez PredictWise et découvrez le potentiel de l'IA dans l'analyse de données.
+          Accédez à des analyses IA Sports & Finance en quelques clics.
         </p>
         <Link to="/signup" className="btn btn-primary btn-xl">
-          Créer un compte gratuit →
+          Créer un compte →
         </Link>
       </section>
 
@@ -314,7 +308,7 @@ const LandingPage = () => {
             <span className="footer-link">Contact</span>
           </nav>
           <p className="footer-copyright">
-            © 2024 PredictWise. Projet éducatif — Aucune valeur financière ou de pari.
+            © 2024 PredictWise. Analyses à titre indicatif — Ne constitue pas un conseil financier.
           </p>
         </div>
       </footer>

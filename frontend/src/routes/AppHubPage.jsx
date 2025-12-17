@@ -92,7 +92,7 @@ function AppHubPage() {
 
       <div className="hub-footer">
         <p>
-          Ces prédictions sont à but éducatif uniquement. Ne constituent pas des conseils financiers.
+          Analyses à titre indicatif. Ne constituent pas des conseils financiers.
         </p>
       </div>
     </PageContainer>

@@ -29,7 +29,7 @@ export async function getSportsPredictionsHistory(options = {}) {
 }
 
 /**
- * Liste des matchs de démonstration.
+ * Liste des matchs de exemple.
  */
 export const DEMO_MATCHES = [
   { id: '1', label: 'Manchester United vs Liverpool' },

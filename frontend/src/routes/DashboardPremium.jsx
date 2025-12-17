@@ -86,7 +86,7 @@ function DashboardPremium() {
             {sidebarCollapsed ? '→' : '←'}
           </button>
           {!sidebarCollapsed && (
-            <div className="pw-mode-badge">Mode éducatif</div>
+            <div className="pw-mode-badge">Mode analyse</div>
           )}
         </div>
       </aside>
@@ -400,8 +400,8 @@ function DashboardPremium() {
               <div className="pw-disclaimer">
                 <span className="pw-disclaimer-icon">ℹ️</span>
                 <p>
-                  <strong>Projet éducatif</strong> – PredictWise est conçu pour l'apprentissage. 
-                  Ces analyses ne constituent en aucun cas des conseils de pari ou d'investissement financier.
+                  <strong>Transparence</strong> – Informations à titre indicatif. 
+                  Ne constituent pas des conseils de pari ou d'investissement financier.
                 </p>
               </div>
             </div>

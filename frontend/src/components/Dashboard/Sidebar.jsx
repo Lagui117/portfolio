@@ -50,11 +50,11 @@ function Sidebar({ collapsed = false, onToggle }) {
 
       <div className="sidebar-footer">
         <div className="user-badge">
-          <div className="badge-icon">🎓</div>
+          <div className="badge-icon">📊</div>
           {!collapsed && (
             <div className="badge-text">
               <span className="badge-label">Mode</span>
-              <span className="badge-value">Éducatif</span>
+              <span className="badge-value">Analyse</span>
             </div>
           )}
         </div>

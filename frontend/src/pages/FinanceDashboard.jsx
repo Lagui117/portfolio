@@ -46,9 +46,7 @@ export default function FinanceDashboard() {
       <header className="dashboard-header">
         <h1>Tableau de bord - Analyse financière</h1>
         <p className="disclaimer">
-          Cette plateforme est un projet éducatif uniquement. Les analyses et prédictions 
-          ne constituent pas des conseils financiers et ne doivent pas être utilisées pour 
-          des décisions d'investissement réelles.
+          Analyses fournies à titre indicatif. Ne constituent pas des conseils financiers.
         </p>
       </header>
 
@@ -56,7 +54,7 @@ export default function FinanceDashboard() {
         <h2>Analyser un titre boursier</h2>
         
         <div className="preset-tickers">
-          <p className="preset-label">Titres de démonstration :</p>
+          <p className="preset-label">Titres populaires :</p>
           <div className="preset-buttons">
             <button 
               type="button" 
@@ -309,7 +307,7 @@ export default function FinanceDashboard() {
 
               {predictionData.gpt_analysis.educational_reminder && (
                 <div className="analysis-section educational-section">
-                  <h4>Rappel éducatif</h4>
+                  <h4>Avertissement</h4>
                   <p className="educational-text">{predictionData.gpt_analysis.educational_reminder}</p>
                 </div>
               )}

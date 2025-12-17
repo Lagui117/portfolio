@@ -78,9 +78,9 @@ function AIAnalysisCard() {
         </div>
 
         <div className="ai-disclaimer">
-          <span className="disclaimer-icon">⚠️</span>
+          <span className="disclaimer-icon">ℹ️</span>
           <span className="disclaimer-text">
-            <strong>Éducation uniquement</strong> — Cette analyse ne constitue pas un conseil financier ou sportif.
+            <strong>À titre indicatif</strong> — Ne constitue pas un conseil financier ou d'incitation au pari.
           </span>
         </div>
       </div>

@@ -86,7 +86,7 @@ export default function HomeHub() {
             <ul>
               <li>Graphiques de prix et indicateurs simples</li>
               <li>Tendance estimée (hausse/baisse)</li>
-              <li>Analyse IA pédagogique sur le contexte</li>
+              <li>Analyse IA détaillée du contexte</li>
               <li>Indicateurs techniques (MA, RSI, volatilité)</li>
             </ul>
             <button type="button">Accéder à la partie Bourse</button>

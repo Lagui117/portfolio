@@ -46,8 +46,7 @@ export default function SportsDashboard() {
       <header className="dashboard-header">
         <h1>Tableau de bord - Analyse sportive</h1>
         <p className="disclaimer">
-          Cette plateforme est à usage éducatif uniquement. Les prédictions ne doivent pas 
-          être utilisées pour des paris réels ou des décisions financières.
+          Analyses fournies à titre indicatif. Ne constituent pas une incitation au pari.
         </p>
       </header>
 
@@ -55,7 +54,7 @@ export default function SportsDashboard() {
         <h2>Analyser un match</h2>
         
         <div className="preset-matches">
-          <p className="preset-label">Matchs de démonstration :</p>
+          <p className="preset-label">Matchs populaires :</p>
           <div className="preset-buttons">
             <button 
               type="button" 
@@ -227,7 +226,7 @@ export default function SportsDashboard() {
 
               {predictionData.gpt_analysis.educational_reminder && (
                 <div className="analysis-section educational-section">
-                  <h4>Rappel éducatif</h4>
+                  <h4>Avertissement</h4>
                   <p className="educational-text">{predictionData.gpt_analysis.educational_reminder}</p>
                 </div>
               )}
