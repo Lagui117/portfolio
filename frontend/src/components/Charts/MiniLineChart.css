@@ -1,0 +1,32 @@
+/* === MINI LINE CHART === */
+.mini-line-chart {
+  position: relative;
+  display: inline-block;
+}
+
+.chart-svg {
+  display: block;
+}
+
+.chart-line {
+  filter: drop-shadow(0 0 4px currentColor);
+}
+
+.chart-point {
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.mini-line-chart:hover .chart-point {
+  opacity: 1;
+}
+
+.mini-chart-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-md);
+  color: var(--color-text-tertiary);
+  font-size: 0.75rem;
+}

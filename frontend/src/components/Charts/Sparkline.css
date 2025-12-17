@@ -1,0 +1,9 @@
+/* === SPARKLINE === */
+.sparkline {
+  display: block;
+}
+
+.sparkline-empty {
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-sm);
+}

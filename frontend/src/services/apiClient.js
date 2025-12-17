@@ -1,6 +1,6 @@
 /**
- * Client API pour PredictWise.
- * Configure axios avec baseURL et intercepteur JWT.
+ * Client API configuré pour PredictWise.
+ * Gère axios avec baseURL, intercepteurs JWT et gestion d'erreurs.
  */
 
 import axios from 'axios';
@@ -8,13 +8,13 @@ import axios from 'axios';
 // Base URL depuis les variables d'environnement
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1';
 
-// Instance axios configuree
+// Instance axios configurée
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 30000, // 30 secondes
+  timeout: 30000,
 });
 
 // Intercepteur pour ajouter le token JWT
@@ -31,22 +31,25 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Intercepteur pour gerer les erreurs de reponse
+// Intercepteur pour gérer les erreurs de réponse
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Token expire ou invalide
+    // Token expiré ou invalide
     if (error.response && error.response.status === 401) {
-      // Supprimer le token et rediriger vers login
+      const currentPath = window.location.pathname;
+      const publicPaths = ['/', '/login', '/signup'];
+      
+      // Nettoyer les données d'authentification
       localStorage.removeItem('access_token');
       localStorage.removeItem('user');
       
-      // Ne pas rediriger si on est deja sur login/signup
-      const currentPath = window.location.pathname;
-      if (currentPath !== '/login' && currentPath !== '/signup' && currentPath !== '/') {
-        window.location.href = '/login';
+      // Rediriger uniquement si on est sur une page protégée
+      if (!publicPaths.includes(currentPath)) {
+        window.location.href = '/login?session_expired=true';
       }
     }
+    
     return Promise.reject(error);
   }
 );

@@ -51,12 +51,17 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
         return False
 
 
-def create_access_token(user_id: int, expires_delta: Optional[timedelta] = None) -> str:
+def create_access_token(
+    user_id: int, 
+    role: str = 'user',
+    expires_delta: Optional[timedelta] = None
+) -> str:
     """
-    Cree un token JWT.
+    Cree un token JWT avec le role de l'utilisateur.
     
     Args:
         user_id: ID de l'utilisateur.
+        role: Role de l'utilisateur (user/admin).
         expires_delta: Duree de validite du token.
     
     Returns:
@@ -73,6 +78,7 @@ def create_access_token(user_id: int, expires_delta: Optional[timedelta] = None)
     
     payload = {
         'user_id': user_id,
+        'role': role,
         'exp': expire,
         'iat': now,
         'type': 'access'

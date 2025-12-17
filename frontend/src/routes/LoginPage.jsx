@@ -1,128 +1,140 @@
-/**
- * Page de connexion.
- * Formulaire email + password avec gestion des erreurs.
- */
-
-import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { login, storeAuthData } from '../services/authService';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import Navbar from '../components/Navbar';
 import '../styles/auth.css';
 
-function LoginPage() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
-  
+const LoginPage = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(location.state?.message || '');
-  const [loading, setLoading] = useState(false);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    if (error) setError('');
-  };
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccess('');
-    setLoading(true);
-    
+    setIsLoading(true);
+
     try {
-      const response = await login({
-        email: formData.email,
-        password: formData.password,
-      });
-      
-      // Stocker le token et les infos utilisateur
-      storeAuthData(response.access_token, response.user);
-      
-      // Rediriger vers le hub
+      await login(email, password);
       navigate('/app');
-      
     } catch (err) {
-      const message = err.response?.data?.error || 'Identifiants invalides.';
-      setError(message);
+      setError(err.response?.data?.error || 'Erreur de connexion. Vérifiez vos identifiants.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="auth-page">
-      <div className="auth-container">
-        <div className="auth-header">
-          <h1>Connexion</h1>
-          <p>Accedez a votre compte PredictWise</p>
-        </div>
+    <>
+      <Navbar />
+      <div className="auth-page">
+        <div className="auth-container">
+          <Link to="/" className="auth-back">
+            ← Retour à l'accueil
+          </Link>
+          
+          <div className="auth-card">
+            <div className="auth-header">
+              <div className="auth-logo">
+                <div className="auth-logo-icon">📊</div>
+                <span className="auth-logo-text">PredictWise</span>
+              </div>
+              <h1 className="auth-title">Connexion</h1>
+              <p className="auth-subtitle">
+                Accédez à votre espace de prédictions IA
+              </p>
+            </div>
 
-        {success && (
-          <div className="success-banner">
-            {success}
+            {error && (
+              <div className="auth-error">
+                ⚠️ {error}
+              </div>
+            )}
+
+            <form className="auth-form" onSubmit={handleSubmit}>
+              <div className="auth-field">
+                <label className="auth-label" htmlFor="email">
+                  Adresse email
+                </label>
+                <div className="auth-input-wrapper">
+                  <span className="auth-input-icon">✉️</span>
+                  <input
+                    id="email"
+                    type="email"
+                    className="auth-input"
+                    placeholder="vous@exemple.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    autoComplete="email"
+                  />
+                </div>
+              </div>
+
+              <div className="auth-field">
+                <label className="auth-label" htmlFor="password">
+                  Mot de passe
+                </label>
+                <div className="auth-input-wrapper">
+                  <span className="auth-input-icon">🔒</span>
+                  <input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    className="auth-input"
+                    placeholder="Votre mot de passe"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    autoComplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? 'Masquer' : 'Afficher'}
+                  >
+                    {showPassword ? '🙈' : '👁️'}
+                  </button>
+                </div>
+              </div>
+
+              <div className="auth-options">
+                <label className="auth-remember">
+                  <input type="checkbox" />
+                  Se souvenir de moi
+                </label>
+                <Link to="/forgot-password" className="auth-forgot">
+                  Mot de passe oublié ?
+                </Link>
+              </div>
+
+              <button 
+                type="submit" 
+                className={`auth-submit ${isLoading ? 'loading' : ''}`}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <span className="spinner"></span>
+                ) : (
+                  <>Se connecter →</>
+                )}
+              </button>
+            </form>
+
+            <div className="auth-footer">
+              Pas encore de compte ?{' '}
+              <Link to="/signup">Créer un compte</Link>
+            </div>
           </div>
-        )}
-
-        {error && (
-          <div className="error-banner">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="votre@email.com"
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="password">Mot de passe</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Votre mot de passe"
-              required
-            />
-          </div>
-
-          <button 
-            type="submit" 
-            className="btn btn-primary btn-full"
-            disabled={loading}
-          >
-            {loading ? 'Connexion en cours...' : 'Se connecter'}
-          </button>
-        </form>
-
-        <div className="auth-footer">
-          <p>
-            Pas encore inscrit ? <Link to="/signup">Creer un compte</Link>
-          </p>
-          <p>
-            <Link to="/">Retour a l'accueil</Link>
-          </p>
         </div>
       </div>
-    </div>
+    </>
   );
-}
+};
 
 export default LoginPage;

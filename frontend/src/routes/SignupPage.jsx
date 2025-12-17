@@ -1,192 +1,207 @@
-/**
- * Page d'inscription.
- * Formulaire complet avec gestion des erreurs.
- */
-
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { signup } from '../services/authService';
+import { useAuth } from '../context/AuthContext';
+import Navbar from '../components/Navbar';
 import '../styles/auth.css';
 
-function SignupPage() {
-  const navigate = useNavigate();
-  
+const SignupPage = () => {
   const [formData, setFormData] = useState({
     email: '',
-    username: '',
     password: '',
-    confirmPassword: '',
-    first_name: '',
-    last_name: '',
+    confirmPassword: ''
   });
-  
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const { register } = useAuth();
+  const navigate = useNavigate();
+
+  const validateForm = () => {
+    const errors = {};
+    
+    if (!formData.email) {
+      errors.email = 'Email requis';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      errors.email = 'Email invalide';
+    }
+    
+    if (!formData.password) {
+      errors.password = 'Mot de passe requis';
+    } else if (formData.password.length < 6) {
+      errors.password = 'Minimum 6 caractères';
+    }
+    
+    if (formData.password !== formData.confirmPassword) {
+      errors.confirmPassword = 'Les mots de passe ne correspondent pas';
+    }
+    
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    // Effacer l'erreur quand l'utilisateur modifie le formulaire
-    if (error) setError('');
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => ({ ...prev, [name]: '' }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
-    // Validation cote client
-    if (formData.password !== formData.confirmPassword) {
-      setError('Les mots de passe ne correspondent pas.');
-      return;
-    }
-    
-    if (formData.password.length < 8) {
-      setError('Le mot de passe doit contenir au moins 8 caracteres.');
-      return;
-    }
-    
-    setLoading(true);
-    
+
+    if (!validateForm()) return;
+
+    setIsLoading(true);
+
     try {
-      await signup({
-        email: formData.email,
-        username: formData.username,
-        password: formData.password,
-        first_name: formData.first_name,
-        last_name: formData.last_name,
-      });
-      
-      // Rediriger vers login apres inscription reussie
-      navigate('/login', { 
-        state: { message: 'Inscription reussie. Vous pouvez maintenant vous connecter.' }
-      });
-      
+      await register(formData.email, formData.password);
+      navigate('/app');
     } catch (err) {
-      const message = err.response?.data?.error || 'Erreur lors de l\'inscription.';
-      setError(message);
+      setError(err.response?.data?.error || "Erreur lors de l'inscription. Veuillez réessayer.");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="auth-page">
-      <div className="auth-container">
-        <div className="auth-header">
-          <h1>Inscription</h1>
-          <p>Creez votre compte PredictWise</p>
-        </div>
-
-        {error && (
-          <div className="error-banner">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="first_name">Prenom</label>
-              <input
-                type="text"
-                id="first_name"
-                name="first_name"
-                value={formData.first_name}
-                onChange={handleChange}
-                placeholder="Votre prenom"
-              />
+    <>
+      <Navbar />
+      <div className="auth-page">
+        <div className="auth-container">
+          <Link to="/" className="auth-back">
+            ← Retour à l'accueil
+          </Link>
+          
+          <div className="auth-card">
+            <div className="auth-header">
+              <div className="auth-logo">
+                <div className="auth-logo-icon">📊</div>
+                <span className="auth-logo-text">PredictWise</span>
+              </div>
+              <h1 className="auth-title">Créer un compte</h1>
+              <p className="auth-subtitle">
+                Rejoignez la plateforme de prédictions IA éducatives
+              </p>
             </div>
-            
-            <div className="form-group">
-              <label htmlFor="last_name">Nom</label>
-              <input
-                type="text"
-                id="last_name"
-                name="last_name"
-                value={formData.last_name}
-                onChange={handleChange}
-                placeholder="Votre nom"
-              />
+
+            {error && (
+              <div className="auth-error">
+                ⚠️ {error}
+              </div>
+            )}
+
+            <form className="auth-form" onSubmit={handleSubmit}>
+              <div className="auth-field">
+                <label className="auth-label" htmlFor="email">
+                  Adresse email
+                </label>
+                <div className="auth-input-wrapper">
+                  <span className="auth-input-icon">✉️</span>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    className={`auth-input ${fieldErrors.email ? 'error' : ''}`}
+                    placeholder="vous@exemple.com"
+                    value={formData.email}
+                    onChange={handleChange}
+                    autoComplete="email"
+                  />
+                </div>
+                {fieldErrors.email && (
+                  <span className="field-error">{fieldErrors.email}</span>
+                )}
+              </div>
+
+              <div className="auth-field">
+                <label className="auth-label" htmlFor="password">
+                  Mot de passe
+                </label>
+                <div className="auth-input-wrapper">
+                  <span className="auth-input-icon">🔒</span>
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    className={`auth-input ${fieldErrors.password ? 'error' : ''}`}
+                    placeholder="Minimum 6 caractères"
+                    value={formData.password}
+                    onChange={handleChange}
+                    autoComplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? 'Masquer' : 'Afficher'}
+                  >
+                    {showPassword ? '🙈' : '👁️'}
+                  </button>
+                </div>
+                {fieldErrors.password && (
+                  <span className="field-error">{fieldErrors.password}</span>
+                )}
+              </div>
+
+              <div className="auth-field">
+                <label className="auth-label" htmlFor="confirmPassword">
+                  Confirmer le mot de passe
+                </label>
+                <div className="auth-input-wrapper">
+                  <span className="auth-input-icon">🔒</span>
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showPassword ? 'text' : 'password'}
+                    className={`auth-input ${fieldErrors.confirmPassword ? 'error' : ''}`}
+                    placeholder="Retapez votre mot de passe"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    autoComplete="new-password"
+                  />
+                </div>
+                {fieldErrors.confirmPassword && (
+                  <span className="field-error">{fieldErrors.confirmPassword}</span>
+                )}
+              </div>
+
+              <button 
+                type="submit" 
+                className={`auth-submit ${isLoading ? 'loading' : ''}`}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <span className="spinner"></span>
+                ) : (
+                  <>Créer mon compte →</>
+                )}
+              </button>
+            </form>
+
+            <p style={{ 
+              fontSize: '0.75rem', 
+              color: 'var(--color-text-muted)', 
+              textAlign: 'center',
+              marginTop: '1rem'
+            }}>
+              En créant un compte, vous acceptez que cette plateforme 
+              est <strong>purement éducative</strong> et ne constitue pas 
+              un conseil d'investissement.
+            </p>
+
+            <div className="auth-footer">
+              Déjà un compte ?{' '}
+              <Link to="/login">Se connecter</Link>
             </div>
           </div>
-
-          <div className="form-group">
-            <label htmlFor="email">Email *</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="votre@email.com"
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="username">Nom d'utilisateur *</label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              placeholder="Choisissez un pseudo"
-              required
-              minLength={3}
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="password">Mot de passe *</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Min. 8 caracteres, 1 majuscule, 1 chiffre"
-              required
-              minLength={8}
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="confirmPassword">Confirmer le mot de passe *</label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder="Retapez votre mot de passe"
-              required
-            />
-          </div>
-
-          <button 
-            type="submit" 
-            className="btn btn-primary btn-full"
-            disabled={loading}
-          >
-            {loading ? 'Inscription en cours...' : 'S\'inscrire'}
-          </button>
-        </form>
-
-        <div className="auth-footer">
-          <p>
-            Deja inscrit ? <Link to="/login">Se connecter</Link>
-          </p>
-          <p>
-            <Link to="/">Retour a l'accueil</Link>
-          </p>
         </div>
       </div>
-    </div>
+    </>
   );
-}
+};
 
 export default SignupPage;

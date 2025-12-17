@@ -8,22 +8,39 @@ pas des conseils financiers ou de pari.
 
 import os
 import logging
+from typing import Optional, Dict, Any
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 
 from app.core.config import Config
 from app.core.database import db, init_db
+from app.core.errors import register_error_handlers
 
-# Configuration du logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+# Configuration du logging avancée
+def configure_logging(app: Flask) -> None:
+    """Configure le logging de l'application."""
+    log_level = app.config.get('LOG_LEVEL', 'INFO')
+    
+    logging.basicConfig(
+        level=getattr(logging, log_level),
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(),
+            # Optionnel: ajouter un FileHandler pour prod
+        ]
+    )
+    
+    # Configurer les loggers des bibliothèques externes
+    logging.getLogger('werkzeug').setLevel(logging.WARNING)
+    logging.getLogger('urllib3').setLevel(logging.WARNING)
+    
+    app.logger.setLevel(getattr(logging, log_level))
+
 logger = logging.getLogger(__name__)
 
 
-def create_app(config_override=None):
+def create_app(config_override: Optional[Dict[str, Any]] = None) -> Flask:
     """
     Factory function pour creer l'application Flask.
     
@@ -42,6 +59,9 @@ def create_app(config_override=None):
     if config_override:
         app.config.update(config_override)
     
+    # Configurer le logging
+    configure_logging(app)
+    
     # Initialisation CORS
     CORS(
         app, 
@@ -58,22 +78,31 @@ def create_app(config_override=None):
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_payload):
         return jsonify({
-            'error': 'Token expire',
-            'message': 'Veuillez vous reconnecter.'
+            'error': {
+                'type': 'token_expired',
+                'message': 'Token expire. Veuillez vous reconnecter.',
+                'details': {}
+            }
         }), 401
     
     @jwt.invalid_token_loader
     def invalid_token_callback(error):
         return jsonify({
-            'error': 'Token invalide',
-            'message': str(error)
+            'error': {
+                'type': 'token_invalid',
+                'message': 'Token invalide.',
+                'details': {'reason': str(error)}
+            }
         }), 401
     
     @jwt.unauthorized_loader
     def missing_token_callback(error):
         return jsonify({
-            'error': 'Token manquant',
-            'message': 'Authorization header requis.'
+            'error': {
+                'type': 'token_missing',
+                'message': 'Authorization header requis.',
+                'details': {}
+            }
         }), 401
     
     # Initialisation de la base de donnees
@@ -86,17 +115,23 @@ def create_app(config_override=None):
     from app.api.v1.auth import auth_bp
     from app.api.v1.sports import sports_bp
     from app.api.v1.finance import finance_bp
+    from app.api.v1.users import users_bp
     
     app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
     app.register_blueprint(sports_bp, url_prefix='/api/v1/sports')
     app.register_blueprint(finance_bp, url_prefix='/api/v1/finance')
+    app.register_blueprint(users_bp, url_prefix='/api/v1/users')
+    
+    # Enregistrer les gestionnaires d'erreurs centralisés
+    register_error_handlers(app)
     
     # Route de sante
     @app.route('/health')
     def health_check():
         return jsonify({
             'status': 'healthy',
-            'service': 'PredictWise API'
+            'service': 'PredictWise API',
+            'version': '1.0.0'
         })
     
     # Route racine
@@ -108,33 +143,11 @@ def create_app(config_override=None):
             'endpoints': {
                 'auth': '/api/v1/auth',
                 'sports': '/api/v1/sports',
-                'finance': '/api/v1/finance'
+                'finance': '/api/v1/finance',
+                'health': '/health'
             },
             'disclaimer': 'Plateforme educative - Les predictions ne constituent pas des conseils financiers ou de pari.'
         })
-    
-    # Gestionnaires d'erreurs globaux
-    @app.errorhandler(400)
-    def bad_request(error):
-        return jsonify({
-            'error': 'Requete invalide',
-            'message': str(error)
-        }), 400
-    
-    @app.errorhandler(404)
-    def not_found(error):
-        return jsonify({
-            'error': 'Ressource non trouvee',
-            'message': str(error)
-        }), 404
-    
-    @app.errorhandler(500)
-    def internal_error(error):
-        logger.error(f'Erreur interne: {error}')
-        return jsonify({
-            'error': 'Erreur interne du serveur',
-            'message': 'Une erreur inattendue s\'est produite.'
-        }), 500
     
     logger.info('Application PredictWise initialisee avec succes')
     

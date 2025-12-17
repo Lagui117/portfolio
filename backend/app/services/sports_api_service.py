@@ -12,6 +12,9 @@ import logging
 from typing import Dict, Any, Optional, List
 from datetime import datetime, timedelta
 
+from app.core.cache import cached
+from app.core.errors import ExternalAPIError, ResourceNotFoundError
+
 logger = logging.getLogger(__name__)
 
 # Essayer d'importer requests
@@ -41,6 +44,7 @@ class SportsAPIService:
         else:
             logger.info(f"Sports API Service initialise avec host: {self.api_host}")
 
+    @cached(ttl=120, key_prefix="sports")
     def get_match_data(self, match_id: str) -> Optional[Dict[str, Any]]:
         """
         Recupere les donnees d'un match specifique.
@@ -50,9 +54,16 @@ class SportsAPIService:
         
         Returns:
             Dictionnaire des donnees du match ou None si non trouve.
+            
+        Raises:
+            ResourceNotFoundError: Si le match n'est pas trouvé
+            ExternalAPIError: Si l'API externe échoue
         """
         if self.use_mock:
-            return self._get_mock_match_data(match_id)
+            result = self._get_mock_match_data(match_id)
+            if not result:
+                raise ResourceNotFoundError("Match", match_id)
+            return result
         
         try:
             url = f"https://{self.api_host}/v3/fixtures"
@@ -68,20 +79,22 @@ class SportsAPIService:
             data = response.json()
             
             if not data.get('response'):
-                logger.warning(f"Match non trouve: {match_id}")
+                logger.warning(f"Match not found in API: {match_id}")
+                # Fallback vers mock
                 return self._get_mock_match_data(match_id)
             
             fixture = data['response'][0]
             return self._format_api_match(fixture)
             
         except requests.exceptions.Timeout:
-            logger.error(f"Timeout API sports pour match {match_id}")
-            return self._get_mock_match_data(match_id)
+            logger.error(f"Timeout calling sports API for match {match_id}")
+            raise ExternalAPIError("Sports API", "Request timeout", {"match_id": match_id})
         except requests.exceptions.HTTPError as e:
-            logger.error(f"Erreur HTTP API sports: {e}")
-            return self._get_mock_match_data(match_id)
+            logger.error(f"HTTP error from sports API: {e}")
+            raise ExternalAPIError("Sports API", f"HTTP {e.response.status_code}", {"match_id": match_id})
         except Exception as e:
-            logger.error(f"Erreur API sports: {e}")
+            logger.error(f"Unexpected error calling sports API: {e}", exc_info=True)
+            # En cas d'erreur, utiliser le mock comme fallback
             return self._get_mock_match_data(match_id)
 
     def get_upcoming_matches(

@@ -1,0 +1,230 @@
+/* === SPORTS PREVIEW === */
+.sports-preview {
+  padding: var(--spacing-2xl) 0;
+}
+
+.view-all-btn {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.view-all-btn:hover {
+  border-color: var(--color-border-neon);
+  color: var(--color-neon-blue);
+}
+
+/* === MATCHES GRID === */
+.matches-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.match-card {
+  padding: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.match-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.match-competition {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-neon-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.match-time {
+  font-size: 0.875rem;
+  color: var(--color-text-tertiary);
+  font-family: var(--font-mono);
+}
+
+/* === TEAMS === */
+.match-teams {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-lg);
+}
+
+.team {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.team.home {
+  align-items: flex-start;
+}
+
+.team.away {
+  align-items: flex-end;
+}
+
+.team-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.team-form {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.form-indicator {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+}
+
+.form-indicator.win {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.form-indicator.draw {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.form-indicator.loss {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.match-vs {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-text-tertiary);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-md);
+}
+
+/* === PREDICTIONS === */
+.match-predictions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.prediction-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.prediction-label {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.prediction-bar {
+  position: relative;
+  height: 28px;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.prediction-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  transition: width 0.8s var(--animate-smooth);
+}
+
+.prediction-fill.home {
+  background: linear-gradient(90deg, var(--color-neon-blue), var(--color-neon-cyan));
+  box-shadow: inset 0 0 10px rgba(0, 212, 255, 0.5);
+}
+
+.prediction-fill.draw {
+  background: linear-gradient(90deg, var(--color-warning), #fbbf24);
+  box-shadow: inset 0 0 10px rgba(245, 158, 11, 0.5);
+}
+
+.prediction-fill.away {
+  background: linear-gradient(90deg, var(--color-neon-purple), #c084fc);
+  box-shadow: inset 0 0 10px rgba(168, 85, 247, 0.5);
+}
+
+.prediction-value {
+  position: absolute;
+  right: var(--spacing-sm);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* === ANALYZE BUTTON === */
+.analyze-btn {
+  width: 100%;
+  padding: var(--spacing-md);
+  background: var(--gradient-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  color: white;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.analyze-btn:hover {
+  transform: translateY(-2px);
+}
+
+.analyze-btn:active {
+  transform: translateY(0);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .matches-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .match-teams {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+  
+  .team {
+    width: 100%;
+    align-items: center !important;
+  }
+  
+  .match-vs {
+    transform: rotate(90deg);
+  }
+}

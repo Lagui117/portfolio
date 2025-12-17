@@ -8,12 +8,16 @@ import LoginPage from './routes/LoginPage';
 import AppHubPage from './routes/AppHubPage';
 import SportsDashboardPage from './routes/SportsDashboardPage';
 import FinanceDashboardPage from './routes/FinanceDashboardPage';
+import DashboardPremium from './routes/DashboardPremium';
+import ProfilePage from './routes/ProfilePage';
+import AdminPage from './routes/AdminPage';
 
 // Components
 import Layout from './components/Layout';
 
 // Styles
 import './styles/global.css';
+import './styles/variables.premium.css';
 
 /**
  * Composant de route protegee.
@@ -39,6 +43,16 @@ function App() {
       <Route path="/" element={<LandingPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/login" element={<LoginPage />} />
+      
+      {/* Dashboard Premium (nouvelle route) */}
+      <Route
+        path="/app/premium"
+        element={
+          <PrivateRoute>
+            <DashboardPremium />
+          </PrivateRoute>
+        }
+      />
       
       {/* Routes protegees */}
       <Route
@@ -67,6 +81,26 @@ function App() {
           <PrivateRoute>
             <Layout>
               <FinanceDashboardPage />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/app/profile"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <ProfilePage />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/app/admin"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <AdminPage />
             </Layout>
           </PrivateRoute>
         }

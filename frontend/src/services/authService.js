@@ -1,41 +1,28 @@
 /**
  * Service d'authentification.
- * Gere inscription, connexion et recuperation du profil.
+ * Gère l'inscription, la connexion et la récupération du profil.
  */
 
 import apiClient from './apiClient';
 
 /**
  * Inscrit un nouvel utilisateur.
- * @param {Object} payload - Donnees d'inscription.
- * @param {string} payload.email - Email.
- * @param {string} payload.username - Nom d'utilisateur.
- * @param {string} payload.password - Mot de passe.
- * @param {string} [payload.first_name] - Prenom.
- * @param {string} [payload.last_name] - Nom de famille.
- * @returns {Promise<Object>} Reponse avec access_token et user.
  */
-export async function signup(payload) {
-  const response = await apiClient.post('/auth/register', payload);
+export async function signup(userData) {
+  const response = await apiClient.post('/auth/register', userData);
   return response.data;
 }
 
 /**
  * Connecte un utilisateur.
- * @param {Object} payload - Identifiants.
- * @param {string} payload.email - Email.
- * @param {string} payload.password - Mot de passe.
- * @returns {Promise<Object>} Reponse avec access_token et user.
  */
-export async function login(payload) {
-  const response = await apiClient.post('/auth/login', payload);
+export async function login(credentials) {
+  const response = await apiClient.post('/auth/login', credentials);
   return response.data;
 }
 
 /**
- * Recupere les informations de l'utilisateur connecte.
- * @param {boolean} [includeStats=false] - Inclure les statistiques.
- * @returns {Promise<Object>} Donnees utilisateur.
+ * Récupère les informations de l'utilisateur connecté.
  */
 export async function getMe(includeStats = false) {
   const params = includeStats ? { stats: 'true' } : {};
@@ -44,7 +31,7 @@ export async function getMe(includeStats = false) {
 }
 
 /**
- * Deconnecte l'utilisateur (cote client).
+ * Déconnecte l'utilisateur (côté client).
  */
 export function logout() {
   localStorage.removeItem('access_token');
@@ -52,8 +39,7 @@ export function logout() {
 }
 
 /**
- * Verifie si l'utilisateur est connecte.
- * @returns {boolean}
+ * Vérifie si l'utilisateur est connecté.
  */
 export function isAuthenticated() {
   return !!localStorage.getItem('access_token');
@@ -61,8 +47,6 @@ export function isAuthenticated() {
 
 /**
  * Stocke le token et les infos utilisateur.
- * @param {string} token - Token JWT.
- * @param {Object} user - Donnees utilisateur.
  */
 export function storeAuthData(token, user) {
   localStorage.setItem('access_token', token);
@@ -72,10 +56,31 @@ export function storeAuthData(token, user) {
 }
 
 /**
- * Recupere l'utilisateur stocke localement.
- * @returns {Object|null}
+ * Récupère l'utilisateur stocké localement.
  */
 export function getStoredUser() {
   const user = localStorage.getItem('user');
   return user ? JSON.parse(user) : null;
+}
+
+/**
+ * Extrait le message d'erreur d'une réponse API.
+ */
+export function extractErrorMessage(error) {
+  if (error.response?.data?.error) {
+    const errorData = error.response.data.error;
+    
+    // Format standardisé {error: {type, message, details}}
+    if (typeof errorData === 'object' && errorData.message) {
+      return errorData.message;
+    }
+    
+    // Format simple {error: "message"}
+    if (typeof errorData === 'string') {
+      return errorData;
+    }
+  }
+  
+  // Fallback
+  return error.response?.data?.message || error.message || 'Une erreur est survenue';
 }

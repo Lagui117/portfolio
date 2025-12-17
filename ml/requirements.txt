@@ -1,18 +1,32 @@
-# ML Requirements
+# ================================
+# Core ML Dependencies
+# ================================
 pandas==2.1.4
 numpy==1.26.2
 scikit-learn==1.3.2
 joblib==1.3.2
 
-# Jupyter
+# ================================
+# Testing
+# ================================
+pytest==7.4.3
+pytest-cov==4.1.0
+
+# ================================
+# Jupyter Notebooks (Optional)
+# ================================
 jupyter==1.0.0
 notebook==7.0.6
 ipykernel==6.27.1
 
+# ================================
 # Visualization
+# ================================
 matplotlib==3.8.2
 seaborn==0.13.0
 
-# Data fetching
+# ================================
+# Data Fetching (Future use)
+# ================================
 requests==2.31.0
 yfinance==0.2.33
