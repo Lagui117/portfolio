@@ -1,33 +1,47 @@
-import { Link } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
-import './Navbar.css'
+/**
+ * Barre de navigation.
+ * Affiche les liens et le statut d'authentification.
+ */
+
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { logout, isAuthenticated, getStoredUser } from '../services/authService';
+import '../styles/navbar.css';
 
 function Navbar() {
-  const { user, isAuthenticated, logout } = useAuth()
+  const navigate = useNavigate();
+  const authenticated = isAuthenticated();
+  const user = getStoredUser();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <Link to={isAuthenticated ? "/hub" : "/"} className="navbar-brand">
+        <Link to={authenticated ? "/app" : "/"} className="navbar-brand">
           PredictWise
         </Link>
         
         <div className="navbar-menu">
-          {isAuthenticated ? (
+          {authenticated ? (
             <>
-              <Link to="/hub" className="navbar-link">Hub IA</Link>
-              <Link to="/sports" className="navbar-link">Sports</Link>
-              <Link to="/finance" className="navbar-link">Finance</Link>
-              <Link to="/dashboard" className="navbar-link">Dashboard</Link>
-              <span className="navbar-user">Bonjour, {user?.username}</span>
-              <button onClick={logout} className="btn btn-secondary">
-                Déconnexion
+              <Link to="/app" className="navbar-link">Hub</Link>
+              <Link to="/app/sports" className="navbar-link">Sports</Link>
+              <Link to="/app/finance" className="navbar-link">Finance</Link>
+              <span className="navbar-user">
+                {user?.first_name || user?.username || 'Utilisateur'}
+              </span>
+              <button onClick={handleLogout} className="btn btn-secondary btn-small">
+                Deconnexion
               </button>
             </>
           ) : (
             <>
               <Link to="/login" className="navbar-link">Connexion</Link>
-              <Link to="/signup" className="btn btn-primary">
+              <Link to="/signup" className="btn btn-primary btn-small">
                 Inscription
               </Link>
             </>
@@ -35,7 +49,7 @@ function Navbar() {
         </div>
       </div>
     </nav>
-  )
+  );
 }
 
-export default Navbar
+export default Navbar;

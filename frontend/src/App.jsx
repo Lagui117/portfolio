@@ -1,60 +1,81 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider } from './context/AuthContext'
-import PrivateRoute from './components/PrivateRoute'
-import Navbar from './components/Navbar'
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
-// Pages
-import Home from './pages/Home'
-import HomeHub from './pages/HomeHub'
-import Login from './pages/Login'
-import Signup from './pages/Signup'
-import Dashboard from './pages/Dashboard'
-import Sports from './pages/Sports'
-import Finance from './pages/Finance'
-import SportsDashboard from './pages/SportsDashboard'
-import FinanceDashboard from './pages/FinanceDashboard'
+// Routes/Pages
+import LandingPage from './routes/LandingPage';
+import SignupPage from './routes/SignupPage';
+import LoginPage from './routes/LoginPage';
+import AppHubPage from './routes/AppHubPage';
+import SportsDashboardPage from './routes/SportsDashboardPage';
+import FinanceDashboardPage from './routes/FinanceDashboardPage';
 
-function App() {
-  return (
-    <AuthProvider>
-      <Router>
-        <div className="app">
-          <Navbar />
-          <main className="main-content">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              
-              {/* Protected routes */}
-              <Route path="/hub" element={
-                <PrivateRoute>
-                  <HomeHub />
-                </PrivateRoute>
-              } />
-              <Route path="/dashboard" element={
-                <PrivateRoute>
-                  <Dashboard />
-                </PrivateRoute>
-              } />
-              <Route path="/sports" element={
-                <PrivateRoute>
-                  <SportsDashboard />
-                </PrivateRoute>
-              } />
-              <Route path="/finance" element={
-                <PrivateRoute>
-                  <FinanceDashboard />
-                </PrivateRoute>
-              } />
-              
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </main>
-        </div>
-      </Router>
-    </AuthProvider>
-  )
+// Components
+import Layout from './components/Layout';
+
+// Styles
+import './styles/global.css';
+
+/**
+ * Composant de route protegee.
+ * Redirige vers /login si pas de token JWT.
+ */
+function PrivateRoute({ children }) {
+  const token = localStorage.getItem('access_token');
+  
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  return children;
 }
 
-export default App
+/**
+ * Application principale PredictWise.
+ */
+function App() {
+  return (
+    <Routes>
+      {/* Routes publiques */}
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/signup" element={<SignupPage />} />
+      <Route path="/login" element={<LoginPage />} />
+      
+      {/* Routes protegees */}
+      <Route
+        path="/app"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <AppHubPage />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/app/sports"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <SportsDashboardPage />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/app/finance"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <FinanceDashboardPage />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      
+      {/* Route par defaut */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
+
+export default App;

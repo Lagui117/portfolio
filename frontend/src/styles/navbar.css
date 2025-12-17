@@ -1,0 +1,62 @@
+/**
+ * Styles pour la barre de navigation
+ */
+
+.navbar {
+  background-color: var(--color-bg-card);
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--spacing-md) 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.navbar-brand:hover {
+  color: var(--color-primary-dark);
+}
+
+.navbar-menu {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+.navbar-link {
+  color: var(--color-text);
+  font-weight: 500;
+  transition: color var(--transition-fast);
+}
+
+.navbar-link:hover {
+  color: var(--color-primary);
+}
+
+.navbar-user {
+  color: var(--color-text-light);
+  font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+  .navbar-menu {
+    gap: var(--spacing-md);
+  }
+  
+  .navbar-user {
+    display: none;
+  }
+}

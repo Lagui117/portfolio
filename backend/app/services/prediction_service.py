@@ -1,397 +1,276 @@
 """
-Centralized prediction service.
+Service de prediction ML.
+Calcule les scores de prediction pour sports et finance.
 
-This service provides a unified interface for all ML predictions across the application.
-It handles model loading, feature preparation, and prediction execution.
+NOTE: Ce service utilise des modeles simplifies ou mock.
+Pour un projet reel, entrainer et charger de vrais modeles ML.
 """
+
 import os
-import joblib
-import numpy as np
 import logging
 from typing import Dict, Any, Optional, List
 
 logger = logging.getLogger(__name__)
 
-# Model paths
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-ML_MODELS_DIR = os.path.join(BASE_DIR, 'ml', 'models')
-
-SPORTS_MODEL_PATH = os.path.join(ML_MODELS_DIR, 'sports_model.pkl')
-FINANCE_MODEL_PATH = os.path.join(ML_MODELS_DIR, 'finance_model.pkl')
-FINANCE_SCALER_PATH = os.path.join(ML_MODELS_DIR, 'finance_scaler.pkl')
+# Essayer de charger joblib pour les modeles
+try:
+    import joblib
+    JOBLIB_AVAILABLE = True
+except ImportError:
+    logger.warning("joblib non disponible. Service prediction en mode mock.")
+    JOBLIB_AVAILABLE = False
 
 
 class PredictionService:
-    """Centralized service for ML predictions."""
+    """Service centralise pour les predictions ML."""
     
     def __init__(self):
-        """Initialize prediction service."""
+        """Initialise le service de prediction."""
         self.sports_model = None
         self.finance_model = None
         self.finance_scaler = None
+        
+        # Chemins des modeles
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        self.ml_models_dir = os.path.join(base_dir, '..', 'ml', 'models')
+        
+        # Charger les modeles si disponibles
         self._load_models()
     
     def _load_models(self):
-        """Load all ML models."""
-        # Load sports model
-        try:
-            if os.path.exists(SPORTS_MODEL_PATH):
-                self.sports_model = joblib.load(SPORTS_MODEL_PATH)
-                logger.info(f"Sports model loaded successfully from {SPORTS_MODEL_PATH}")
-            else:
-                logger.warning(f"Sports model not found at {SPORTS_MODEL_PATH}")
-        except Exception as e:
-            logger.error(f"Error loading sports model: {e}")
+        """Charge les modeles ML depuis le disque."""
+        if not JOBLIB_AVAILABLE:
+            logger.info("Modeles ML non charges (joblib indisponible)")
+            return
         
-        # Load finance model and scaler
-        try:
-            if os.path.exists(FINANCE_MODEL_PATH):
-                self.finance_model = joblib.load(FINANCE_MODEL_PATH)
-                logger.info(f"Finance model loaded successfully from {FINANCE_MODEL_PATH}")
-            else:
-                logger.warning(f"Finance model not found at {FINANCE_MODEL_PATH}")
-            
-            if os.path.exists(FINANCE_SCALER_PATH):
-                self.finance_scaler = joblib.load(FINANCE_SCALER_PATH)
-                logger.info(f"Finance scaler loaded successfully from {FINANCE_SCALER_PATH}")
-            else:
-                logger.warning(f"Finance scaler not found at {FINANCE_SCALER_PATH}")
-        except Exception as e:
-            logger.error(f"Error loading finance model: {e}")
-    
-    def predict_sport_event(
-        self,
-        home_stats: Dict[str, float],
-        away_stats: Dict[str, float],
-        odds: Optional[Dict[str, float]] = None,
-        h2h_stats: Optional[Dict[str, float]] = None
-    ) -> Dict[str, Any]:
+        # Modele sports
+        sports_path = os.path.join(self.ml_models_dir, 'sports_model.pkl')
+        if os.path.exists(sports_path):
+            try:
+                self.sports_model = joblib.load(sports_path)
+                logger.info(f"Modele sports charge: {sports_path}")
+            except Exception as e:
+                logger.warning(f"Erreur chargement modele sports: {e}")
+        
+        # Modele finance
+        finance_path = os.path.join(self.ml_models_dir, 'finance_model.pkl')
+        if os.path.exists(finance_path):
+            try:
+                self.finance_model = joblib.load(finance_path)
+                logger.info(f"Modele finance charge: {finance_path}")
+            except Exception as e:
+                logger.warning(f"Erreur chargement modele finance: {e}")
+        
+        # Scaler finance
+        scaler_path = os.path.join(self.ml_models_dir, 'finance_scaler.pkl')
+        if os.path.exists(scaler_path):
+            try:
+                self.finance_scaler = joblib.load(scaler_path)
+                logger.info(f"Scaler finance charge: {scaler_path}")
+            except Exception as e:
+                logger.warning(f"Erreur chargement scaler finance: {e}")
+
+    def predict_sport(self, match_data: Dict[str, Any]) -> float:
         """
-        Predict outcome of a sports event.
+        Predit le resultat d'un match sportif.
         
         Args:
-            home_stats: Home team statistics (win_rate, avg_goals_scored, recent_form)
-            away_stats: Away team statistics (win_rate, avg_goals_scored, recent_form)
-            odds: Betting odds (home, draw, away) - optional
-            h2h_stats: Head-to-head statistics - optional
+            match_data: Donnees du match (equipes, stats, cotes, etc.)
         
         Returns:
-            Dictionary with prediction, probabilities, and confidence
+            Score de probabilite entre 0 et 1 (victoire equipe domicile).
         """
-        if self.sports_model is None:
-            return self._fallback_sports_prediction(home_stats, away_stats)
-        
-        try:
-            # Prepare features
-            features = self._prepare_sports_features(home_stats, away_stats, odds, h2h_stats)
-            
-            # Make prediction
-            prediction = self.sports_model.predict([features])[0]
-            probabilities = self.sports_model.predict_proba([features])[0]
-            
-            # Format probabilities
-            classes = self.sports_model.classes_
-            prob_dict = {cls: float(prob) for cls, prob in zip(classes, probabilities)}
-            
-            confidence = float(max(probabilities))
-            
-            return {
-                'prediction': prediction,
-                'probabilities': prob_dict,
-                'confidence': confidence,
-                'model_used': 'RandomForest',
-                'features': features
-            }
-        
-        except Exception as e:
-            logger.error(f"Error in sports prediction: {e}")
-            return self._fallback_sports_prediction(home_stats, away_stats)
-    
-    def _prepare_sports_features(
-        self,
-        home_stats: Dict[str, float],
-        away_stats: Dict[str, float],
-        odds: Optional[Dict[str, float]],
-        h2h_stats: Optional[Dict[str, float]]
-    ) -> List[float]:
-        """Prepare feature vector for sports prediction."""
-        # Helper function to safely convert to float
-        def to_float(value, default=0.0):
+        # Si modele ML disponible, l'utiliser
+        if self.sports_model is not None:
             try:
-                return float(value) if value is not None else default
+                features = self._extract_sports_features(match_data)
+                proba = self.sports_model.predict_proba([features])[0]
+                # Retourner la probabilite de victoire domicile
+                return float(proba[0]) if len(proba) > 0 else 0.5
+            except Exception as e:
+                logger.warning(f"Erreur prediction ML sports: {e}")
+        
+        # Sinon, utiliser une heuristique simple
+        return self._heuristic_sports_prediction(match_data)
+    
+    def _extract_sports_features(self, match_data: Dict[str, Any]) -> List[float]:
+        """Extrait les features pour le modele ML sports."""
+        home = match_data.get('home_team', {})
+        away = match_data.get('away_team', {})
+        odds = match_data.get('odds', {})
+        
+        def safe_float(val, default=0.5):
+            try:
+                return float(val) if val is not None else default
             except (ValueError, TypeError):
                 return default
         
-        # Basic stats - safely convert to float
-        home_win_rate = to_float(home_stats.get('win_rate'), 0.5)
-        home_avg_goals = to_float(home_stats.get('avg_goals_scored'), 1.5)
-        home_form = to_float(home_stats.get('recent_form'), 1.5)
-        
-        away_win_rate = to_float(away_stats.get('win_rate'), 0.5)
-        away_avg_goals = to_float(away_stats.get('avg_goals_scored'), 1.5)
-        away_form = to_float(away_stats.get('recent_form'), 1.5)
-        
-        # Derived features
-        win_rate_diff = home_win_rate - away_win_rate
-        form_diff = home_form - away_form
-        
-        # H2H stats
-        h2h_home_win_rate = 0.33
-        if h2h_stats:
-            h2h_home_win_rate = h2h_stats.get('home_win_rate', 0.33)
-        
-        # Odds
-        home_odds = 2.5
-        draw_odds = 3.2
-        away_odds = 2.8
-        if odds:
-            home_odds = odds.get('home', 2.5)
-            draw_odds = odds.get('draw', 3.2)
-            away_odds = odds.get('away', 2.8)
-        
-        odds_ratio = home_odds / away_odds if away_odds > 0 else 1.0
-        
-        return [
-            home_win_rate,
-            home_avg_goals,
-            home_form,
-            away_win_rate,
-            away_avg_goals,
-            away_form,
-            win_rate_diff,
-            form_diff,
-            h2h_home_win_rate,
-            home_odds,
-            draw_odds,
-            away_odds,
-            odds_ratio
+        features = [
+            safe_float(home.get('win_rate'), 0.5),
+            safe_float(home.get('goals_scored_avg'), 1.5),
+            safe_float(away.get('win_rate'), 0.5),
+            safe_float(away.get('goals_scored_avg'), 1.5),
+            safe_float(odds.get('home_win'), 2.5),
+            safe_float(odds.get('draw'), 3.2),
+            safe_float(odds.get('away_win'), 2.5),
         ]
+        
+        return features
     
-    def _fallback_sports_prediction(
-        self,
-        home_stats: Dict[str, float],
-        away_stats: Dict[str, float]
-    ) -> Dict[str, Any]:
-        """Fallback prediction when model is not available."""
-        # Helper function to safely convert to float
-        def to_float(value, default=0.0):
+    def _heuristic_sports_prediction(self, match_data: Dict[str, Any]) -> float:
+        """
+        Prediction heuristique simple basee sur les cotes et stats.
+        
+        Cette methode est utilisee quand aucun modele ML n'est disponible.
+        Elle combine plusieurs facteurs avec des poids simples.
+        """
+        home = match_data.get('home_team', {})
+        away = match_data.get('away_team', {})
+        odds = match_data.get('odds', {})
+        
+        score = 0.5  # Score de base (50/50)
+        
+        # Ajustement selon les taux de victoire
+        home_wr = home.get('win_rate', 0.5)
+        away_wr = away.get('win_rate', 0.5)
+        if isinstance(home_wr, (int, float)) and isinstance(away_wr, (int, float)):
+            diff = (home_wr - away_wr) * 0.3
+            score += diff
+        
+        # Ajustement selon les cotes (si disponibles)
+        home_odds = odds.get('home_win')
+        away_odds = odds.get('away_win')
+        if home_odds and away_odds:
             try:
-                return float(value) if value is not None else default
+                home_odds = float(home_odds)
+                away_odds = float(away_odds)
+                # Cotes plus basses = favori
+                odds_factor = (away_odds - home_odds) / (home_odds + away_odds) * 0.2
+                score += odds_factor
+            except (ValueError, TypeError, ZeroDivisionError):
+                pass
+        
+        # Ajustement selon les buts moyens
+        home_goals = home.get('goals_scored_avg', 1.5)
+        away_goals = away.get('goals_scored_avg', 1.5)
+        if isinstance(home_goals, (int, float)) and isinstance(away_goals, (int, float)):
+            goals_factor = (home_goals - away_goals) * 0.1
+            score += goals_factor
+        
+        # Borner le score entre 0.1 et 0.9
+        score = max(0.1, min(0.9, score))
+        
+        return round(score, 3)
+
+    def predict_stock(self, stock_data: Dict[str, Any]) -> float:
+        """
+        Predit la tendance d'un actif financier.
+        
+        Args:
+            stock_data: Donnees de l'actif (prix, indicateurs, etc.)
+        
+        Returns:
+            Score entre -1 (forte baisse) et 1 (forte hausse), ou 0 (neutre).
+        """
+        # Si modele ML disponible, l'utiliser
+        if self.finance_model is not None:
+            try:
+                features = self._extract_finance_features(stock_data)
+                if self.finance_scaler:
+                    features = self.finance_scaler.transform([features])[0]
+                prediction = self.finance_model.predict([features])[0]
+                return float(prediction)
+            except Exception as e:
+                logger.warning(f"Erreur prediction ML finance: {e}")
+        
+        # Sinon, utiliser une heuristique simple
+        return self._heuristic_finance_prediction(stock_data)
+    
+    def _extract_finance_features(self, stock_data: Dict[str, Any]) -> List[float]:
+        """Extrait les features pour le modele ML finance."""
+        indicators = stock_data.get('indicators', {})
+        
+        def safe_float(val, default=0.0):
+            try:
+                return float(val) if val is not None else default
             except (ValueError, TypeError):
                 return default
         
-        home_strength = to_float(home_stats.get('win_rate'), 0.5) + to_float(home_stats.get('recent_form'), 1.5) / 3.0
-        away_strength = to_float(away_stats.get('win_rate'), 0.5) + to_float(away_stats.get('recent_form'), 1.5) / 3.0
-        
-        total_strength = home_strength + away_strength
-        if total_strength == 0:
-            home_prob = 0.4
-        else:
-            home_prob = min(max(home_strength / total_strength, 0.2), 0.8)
-        
-        away_prob = min(max(away_strength / total_strength, 0.2), 0.8)
-        draw_prob = max(0.1, 1.0 - home_prob - away_prob)
-        
-        # Normalize
-        total = home_prob + draw_prob + away_prob
-        home_prob /= total
-        draw_prob /= total
-        away_prob /= total
-        
-        # Determine prediction
-        if home_prob > draw_prob and home_prob > away_prob:
-            prediction = 'HOME_WIN'
-            confidence = home_prob
-        elif away_prob > draw_prob:
-            prediction = 'AWAY_WIN'
-            confidence = away_prob
-        else:
-            prediction = 'DRAW'
-            confidence = draw_prob
-        
-        return {
-            'prediction': prediction,
-            'probabilities': {
-                'HOME_WIN': float(home_prob),
-                'DRAW': float(draw_prob),
-                'AWAY_WIN': float(away_prob)
-            },
-            'confidence': float(confidence),
-            'model_used': 'Fallback',
-            'features': None
-        }
-    
-    def predict_stock_movement(
-        self,
-        technical_indicators: Dict[str, float]
-    ) -> Dict[str, Any]:
-        """
-        Predict stock price movement.
-        
-        Args:
-            technical_indicators: Dictionary with MA, RSI, MACD, volatility, price changes
-        
-        Returns:
-            Dictionary with prediction, probabilities, and confidence
-        """
-        if self.finance_model is None or self.finance_scaler is None:
-            return self._fallback_finance_prediction(technical_indicators)
-        
-        try:
-            # Prepare features
-            features = self._prepare_finance_features(technical_indicators)
-            
-            # Scale features
-            features_scaled = self.finance_scaler.transform([features])
-            
-            # Make prediction
-            prediction = self.finance_model.predict(features_scaled)[0]
-            probabilities = self.finance_model.predict_proba(features_scaled)[0]
-            
-            # Format probabilities
-            classes = self.finance_model.classes_
-            prob_dict = {cls: float(prob) for cls, prob in zip(classes, probabilities)}
-            
-            confidence = float(max(probabilities))
-            
-            return {
-                'prediction': prediction,
-                'probabilities': prob_dict,
-                'confidence': confidence,
-                'model_used': 'LogisticRegression',
-                'features': features
-            }
-        
-        except Exception as e:
-            logger.error(f"Error in finance prediction: {e}")
-            return self._fallback_finance_prediction(technical_indicators)
-    
-    def _prepare_finance_features(self, indicators: Dict[str, float]) -> List[float]:
-        """Prepare feature vector for finance prediction."""
-        # Extract indicators
-        ma_5 = indicators.get('MA_5', 100.0)
-        ma_20 = indicators.get('MA_20', 100.0)
-        ma_50 = indicators.get('MA_50', 100.0)
-        rsi = indicators.get('RSI', 50.0)
-        macd = indicators.get('MACD', 0.0)
-        volatility_daily = indicators.get('volatility_daily', 0.02)
-        volatility_annual = indicators.get('volatility_annual', 0.3)
-        price_change_1d = indicators.get('price_change_1d', 0.0)
-        price_change_5d = indicators.get('price_change_5d', 0.0)
-        price_change_20d = indicators.get('price_change_20d', 0.0)
-        current_price = indicators.get('current_price', 100.0)
-        
-        # Derived features
-        ma5_minus_ma20 = ma_5 - ma_20
-        ma20_minus_ma50 = ma_20 - ma_50
-        ma5_ratio = ma_5 / current_price if current_price > 0 else 1.0
-        ma20_ratio = ma_20 / current_price if current_price > 0 else 1.0
-        
-        return [
-            ma_5,
-            ma_20,
-            ma_50,
-            rsi,
-            macd,
-            volatility_daily,
-            volatility_annual,
-            price_change_1d,
-            price_change_5d,
-            price_change_20d,
-            ma5_minus_ma20,
-            ma20_minus_ma50,
-            ma5_ratio,
-            ma20_ratio
+        features = [
+            safe_float(indicators.get('RSI'), 50),
+            safe_float(indicators.get('MA_5'), 0),
+            safe_float(indicators.get('MA_20'), 0),
+            safe_float(indicators.get('volatility_daily'), 0.02),
+            safe_float(stock_data.get('price_change_pct'), 0),
         ]
+        
+        return features
     
-    def _fallback_finance_prediction(
-        self,
-        indicators: Dict[str, float]
-    ) -> Dict[str, Any]:
-        """Fallback prediction when model is not available."""
-        # Simple rule-based prediction
-        score = 0
+    def _heuristic_finance_prediction(self, stock_data: Dict[str, Any]) -> float:
+        """
+        Prediction heuristique simple basee sur les indicateurs techniques.
         
-        # RSI signal
-        rsi = indicators.get('RSI', 50.0)
-        if rsi > 70:
-            score -= 1  # Overbought
-        elif rsi < 30:
-            score += 1  # Oversold
+        Retourne un score entre -1 (baisse) et 1 (hausse).
+        """
+        indicators = stock_data.get('indicators', {})
+        score = 0.0
         
-        # MACD signal
-        macd = indicators.get('MACD', 0.0)
-        if macd > 0:
-            score += 1
-        else:
-            score -= 1
+        # RSI (Relative Strength Index)
+        rsi = indicators.get('RSI')
+        if rsi is not None:
+            try:
+                rsi = float(rsi)
+                if rsi < 30:  # Survendu -> potentiel hausse
+                    score += 0.3
+                elif rsi > 70:  # Surachete -> potentiel baisse
+                    score -= 0.3
+            except (ValueError, TypeError):
+                pass
         
-        # Moving averages
-        ma_5 = indicators.get('MA_5', 100.0)
-        ma_20 = indicators.get('MA_20', 100.0)
-        if ma_5 > ma_20:
-            score += 1
-        else:
-            score -= 1
+        # Moyennes mobiles (MA)
+        ma_5 = indicators.get('MA_5')
+        ma_20 = indicators.get('MA_20')
+        current = stock_data.get('current_price')
         
-        # Recent momentum
-        chg_5d = indicators.get('price_change_5d', 0.0)
-        if chg_5d > 0.02:
-            score += 1
-        elif chg_5d < -0.02:
-            score -= 1
+        if ma_5 and ma_20 and current:
+            try:
+                ma_5 = float(ma_5)
+                ma_20 = float(ma_20)
+                current = float(current)
+                
+                # Prix au-dessus de MA -> tendance haussiere
+                if current > ma_5 > ma_20:
+                    score += 0.4
+                elif current < ma_5 < ma_20:
+                    score -= 0.4
+            except (ValueError, TypeError):
+                pass
         
-        # Determine prediction
-        if score > 0:
-            prediction = 'UP'
-            up_prob = min(0.5 + score * 0.1, 0.8)
-            down_prob = 1.0 - up_prob
-        else:
-            prediction = 'DOWN'
-            down_prob = min(0.5 + abs(score) * 0.1, 0.8)
-            up_prob = 1.0 - down_prob
+        # Volatilite
+        volatility = indicators.get('volatility_daily')
+        if volatility is not None:
+            try:
+                volatility = float(volatility)
+                # Haute volatilite -> incertitude
+                if volatility > 0.03:
+                    score *= 0.8  # Reduire la confiance
+            except (ValueError, TypeError):
+                pass
         
-        confidence = max(up_prob, down_prob)
+        # Variation recente
+        change = stock_data.get('price_change_pct')
+        if change is not None:
+            try:
+                change = float(change)
+                score += change * 0.02  # Leger impact
+            except (ValueError, TypeError):
+                pass
         
-        return {
-            'prediction': prediction,
-            'probabilities': {
-                'UP': float(up_prob),
-                'DOWN': float(down_prob)
-            },
-            'confidence': float(confidence),
-            'model_used': 'Fallback',
-            'features': None
-        }
-    
-    def get_models_info(self) -> Dict[str, Any]:
-        """Get information about loaded models."""
-        return {
-            'sports_model': {
-                'loaded': self.sports_model is not None,
-                'type': type(self.sports_model).__name__ if self.sports_model else None,
-                'path': SPORTS_MODEL_PATH
-            },
-            'finance_model': {
-                'loaded': self.finance_model is not None,
-                'type': type(self.finance_model).__name__ if self.finance_model else None,
-                'path': FINANCE_MODEL_PATH
-            },
-            'finance_scaler': {
-                'loaded': self.finance_scaler is not None,
-                'type': type(self.finance_scaler).__name__ if self.finance_scaler else None,
-                'path': FINANCE_SCALER_PATH
-            }
-        }
+        # Borner le score entre -1 et 1
+        score = max(-1.0, min(1.0, score))
+        
+        return round(score, 3)
 
 
-# Global instance
-_prediction_service = None
-
-
-def get_prediction_service() -> PredictionService:
-    """Get the singleton prediction service instance."""
-    global _prediction_service
-    if _prediction_service is None:
-        _prediction_service = PredictionService()
-    return _prediction_service
+# Instance globale du service
+prediction_service = PredictionService()

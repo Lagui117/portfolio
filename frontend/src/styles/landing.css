@@ -1,0 +1,130 @@
+/**
+ * Styles pour la landing page
+ */
+
+.landing-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.landing-header {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: var(--color-text-inverse);
+  padding: var(--spacing-2xl);
+  text-align: center;
+}
+
+.landing-header h1 {
+  font-size: 3rem;
+  margin-bottom: var(--spacing-sm);
+}
+
+.landing-header .tagline {
+  font-size: 1.25rem;
+  opacity: 0.9;
+}
+
+.landing-hero {
+  flex: 1;
+  padding: var(--spacing-2xl);
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.hero-content h2 {
+  text-align: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.hero-content > p {
+  text-align: center;
+  color: var(--color-text-light);
+  max-width: 700px;
+  margin: 0 auto var(--spacing-2xl);
+}
+
+.features {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-xl);
+  margin-bottom: var(--spacing-2xl);
+}
+
+.feature {
+  background-color: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-md);
+  text-align: center;
+}
+
+.feature-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: var(--spacing-md);
+}
+
+.feature h3 {
+  color: var(--color-primary);
+}
+
+.feature p {
+  color: var(--color-text-light);
+  font-size: 0.95rem;
+}
+
+.cta-buttons {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-lg);
+}
+
+.cta-buttons .btn {
+  padding: var(--spacing-md) var(--spacing-2xl);
+  font-size: 1.1rem;
+}
+
+.landing-disclaimer {
+  background-color: #fef3c7;
+  padding: var(--spacing-xl);
+  text-align: center;
+}
+
+.landing-disclaimer h3 {
+  color: var(--color-warning);
+}
+
+.landing-disclaimer p {
+  max-width: 800px;
+  margin: 0 auto var(--spacing-md);
+  color: #92400e;
+  font-size: 0.95rem;
+}
+
+.landing-footer {
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-inverse);
+  padding: var(--spacing-lg);
+  text-align: center;
+}
+
+.landing-footer p {
+  margin: 0;
+  opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+  .landing-header h1 {
+    font-size: 2rem;
+  }
+  
+  .features {
+    grid-template-columns: 1fr;
+  }
+  
+  .cta-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+}

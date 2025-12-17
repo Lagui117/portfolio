@@ -1,187 +1,212 @@
 """
-OpenAI GPT Service for PredictWise.
+Service GPT pour l'analyse IA.
+Utilise OpenAI pour generer des analyses educatives.
 
-This service provides AI-powered analysis for sports and financial predictions
-using OpenAI's GPT models. The analysis is strictly educational and should not
-be used for making actual betting or investment decisions.
+IMPORTANT: Ce service est strictement educatif.
+Les analyses ne constituent pas des conseils financiers ou de pari.
 """
+
 import os
 import json
 import logging
 from typing import Dict, Any, Optional
-from openai import OpenAI
 
 logger = logging.getLogger(__name__)
 
+# Essayer d'importer OpenAI
+try:
+    from openai import OpenAI
+    OPENAI_AVAILABLE = True
+except ImportError:
+    logger.warning("openai package non installe. Service GPT en mode fallback.")
+    OPENAI_AVAILABLE = False
+
 
 class GPTService:
-    """Service for generating AI-powered analysis using OpenAI GPT."""
+    """Service pour l'analyse IA avec OpenAI GPT."""
     
     def __init__(self):
-        """Initialize the GPT service with OpenAI API key."""
-        self.api_key = os.getenv('OPENAI_API_KEY')
-        if not self.api_key:
-            logger.warning("OPENAI_API_KEY not found. GPT service will be disabled.")
+        """Initialise le service GPT."""
+        self.api_key = os.getenv('OPENAI_API_KEY', '')
+        self.model = os.getenv('OPENAI_MODEL', 'gpt-4o-mini')
+        
+        if not self.api_key or not OPENAI_AVAILABLE:
+            logger.warning("GPT Service en mode fallback (pas de cle API ou package manquant).")
             self.client = None
         else:
-            self.client = OpenAI(api_key=self.api_key)
-            logger.info("GPT service initialized successfully")
+            try:
+                self.client = OpenAI(api_key=self.api_key)
+                logger.info("GPT Service initialise avec succes.")
+            except Exception as e:
+                logger.error(f"Erreur initialisation OpenAI: {e}")
+                self.client = None
     
     def _get_system_prompt(self) -> str:
-        """Get the system prompt that defines the AI assistant's behavior."""
-        return """Tu es un assistant d'analyse pour PredictWise, une plateforme ÉDUCATIVE 
-d'analyse de données sportives et financières.
+        """Prompt systeme definissant le comportement de l'assistant."""
+        return """Tu es un assistant d'analyse pour PredictWise, une plateforme EDUCATIVE 
+d'analyse de donnees sportives et financieres.
 
-RÈGLES IMPORTANTES:
-1. Tu ne dois JAMAIS inciter les utilisateurs à parier ou investir de l'argent réel
-2. Tes analyses sont strictement à but pédagogique et expérimental
-3. Tu dois TOUJOURS rappeler les limitations et les risques
-4. Tu dois répondre UNIQUEMENT en JSON valide, selon le format demandé
-5. Sois factuel, nuancé et mets en avant l'incertitude inhérente aux prédictions
+REGLES IMPORTANTES:
+1. Tu ne dois JAMAIS inciter les utilisateurs a parier ou investir de l'argent reel.
+2. Tes analyses sont strictement a but pedagogique et experimental.
+3. Tu dois TOUJOURS rappeler les limitations et les risques.
+4. Tu dois repondre UNIQUEMENT en JSON valide, selon le format demande.
+5. Sois factuel, nuance et mets en avant l'incertitude inherente aux predictions.
 
-Ta mission est d'analyser des données et d'expliquer les facteurs qui peuvent influencer 
-un résultat sportif ou une tendance boursière, dans un but d'apprentissage uniquement."""
+Ta mission est d'analyser des donnees et d'expliquer les facteurs qui peuvent influencer 
+un resultat sportif ou une tendance boursiere, dans un but d'apprentissage uniquement."""
 
-    def _create_sports_prompt(self, match_data: Dict[str, Any], ml_score: Optional[float]) -> str:
-        """Create a prompt for sports analysis."""
-        prompt = f"""Analyse ce match sportif de manière éducative:
+    def _create_sports_prompt(self, match_data: Dict[str, Any], model_score: Optional[float]) -> str:
+        """Cree le prompt pour l'analyse sportive."""
+        prompt = f"""Analyse ce match sportif de maniere educative:
 
-DONNÉES DU MATCH:
-{json.dumps(match_data, indent=2, ensure_ascii=False)}
+DONNEES DU MATCH:
+{json.dumps(match_data, indent=2, ensure_ascii=False, default=str)}
 
 """
-        if ml_score is not None:
-            prompt += f"SCORE DU MODÈLE ML INTERNE: {ml_score:.2%}\n\n"
+        if model_score is not None:
+            prompt += f"SCORE DU MODELE ML INTERNE: {model_score:.2%}\n\n"
         
-        prompt += """Réponds UNIQUEMENT avec un JSON valide selon ce format exact:
+        prompt += """Reponds UNIQUEMENT avec un JSON valide selon ce format exact:
 {
   "domain": "sports",
-  "summary": "résumé en 1-2 phrases",
-  "analysis": "analyse détaillée des facteurs (200-300 mots max)",
+  "summary": "resume en 1-2 phrases",
+  "analysis": "analyse detaillee des facteurs (200-300 mots max)",
   "prediction_type": "probability",
   "prediction_value": nombre entre 0 et 1,
   "confidence": nombre entre 0 et 1,
   "caveats": "limitations importantes de cette analyse",
-  "educational_reminder": "rappel que c'est expérimental et éducatif"
+  "educational_reminder": "rappel que c'est experimental et educatif"
 }"""
         return prompt
 
-    def _create_finance_prompt(self, stock_data: Dict[str, Any], ml_score: Optional[float]) -> str:
-        """Create a prompt for financial analysis."""
-        prompt = f"""Analyse ces données boursières de manière éducative:
+    def _create_finance_prompt(self, stock_data: Dict[str, Any], model_score: Optional[float]) -> str:
+        """Cree le prompt pour l'analyse financiere."""
+        # Simplifier les donnees pour le prompt
+        simplified_data = {
+            'symbol': stock_data.get('symbol'),
+            'name': stock_data.get('name'),
+            'sector': stock_data.get('sector'),
+            'current_price': stock_data.get('current_price'),
+            'indicators': stock_data.get('indicators', {}),
+        }
+        
+        prompt = f"""Analyse ces donnees boursieres de maniere educative:
 
-DONNÉES FINANCIÈRES:
-{json.dumps(stock_data, indent=2, ensure_ascii=False)}
+DONNEES FINANCIERES:
+{json.dumps(simplified_data, indent=2, ensure_ascii=False, default=str)}
 
 """
-        if ml_score is not None:
-            prompt += f"PRÉDICTION DU MODÈLE ML INTERNE: {ml_score}\n\n"
+        if model_score is not None:
+            prompt += f"PREDICTION DU MODELE ML INTERNE: {model_score}\n\n"
         
-        prompt += """Réponds UNIQUEMENT avec un JSON valide selon ce format exact:
+        prompt += """Reponds UNIQUEMENT avec un JSON valide selon ce format exact:
 {
   "domain": "finance",
-  "summary": "résumé en 1-2 phrases",
-  "analysis": "analyse détaillée des indicateurs (200-300 mots max)",
+  "summary": "resume en 1-2 phrases",
+  "analysis": "analyse detaillee des indicateurs (200-300 mots max)",
   "prediction_type": "trend",
   "prediction_value": "UP", "DOWN" ou "NEUTRAL",
   "confidence": nombre entre 0 et 1,
   "caveats": "limitations importantes de cette analyse",
-  "educational_reminder": "rappel que c'est expérimental et éducatif"
+  "educational_reminder": "rappel que c'est experimental et educatif, pas un conseil d'investissement"
 }"""
         return prompt
 
     def _call_gpt(self, user_prompt: str, domain: str = "sports") -> Dict[str, Any]:
-        """Call OpenAI GPT API and parse JSON response."""
+        """Appelle l'API OpenAI et parse la reponse JSON."""
         if not self.client:
             return self._get_fallback_response(domain)
         
         try:
             response = self.client.chat.completions.create(
-                model="gpt-4o-mini",  # Plus économique que gpt-4
+                model=self.model,
                 messages=[
                     {"role": "system", "content": self._get_system_prompt()},
                     {"role": "user", "content": user_prompt}
                 ],
-                temperature=0.3,  # Réponses plus cohérentes et factuelles
-                response_format={"type": "json_object"}  # Force la réponse JSON
+                temperature=0.3,
+                response_format={"type": "json_object"}
             )
             
             content = response.choices[0].message.content
             result = json.loads(content)
             
             # Validation des champs obligatoires
-            required_fields = ['domain', 'summary', 'analysis', 'prediction_type', 
-                             'prediction_value', 'confidence', 'caveats', 'educational_reminder']
+            required_fields = [
+                'domain', 'summary', 'analysis', 'prediction_type',
+                'prediction_value', 'confidence', 'caveats', 'educational_reminder'
+            ]
             
             for field in required_fields:
                 if field not in result:
-                    logger.warning(f"Missing field in GPT response: {field}")
+                    logger.warning(f"Champ manquant dans reponse GPT: {field}")
                     result[field] = "N/A"
             
             return result
             
         except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse GPT JSON response: {e}")
+            logger.error(f"Erreur parsing JSON GPT: {e}")
             return self._get_fallback_response(domain)
         except Exception as e:
-            logger.error(f"GPT API call failed: {e}")
+            logger.error(f"Erreur appel API GPT: {e}")
             return self._get_fallback_response(domain)
 
     def _get_fallback_response(self, domain: str) -> Dict[str, Any]:
-        """Return a fallback response when GPT is unavailable."""
+        """Reponse de fallback quand GPT est indisponible."""
         return {
             "domain": domain,
-            "summary": "Analyse GPT indisponible. Service en mode dégradé.",
+            "summary": "Analyse GPT indisponible. Service en mode degrade.",
             "analysis": "Le service d'analyse par IA n'est pas disponible actuellement. "
-                       "Cela peut être dû à une clé API manquante ou à une erreur de connexion. "
-                       "Veuillez utiliser uniquement les données brutes et le score ML si disponible.",
+                       "Cela peut etre du a une cle API manquante ou a une erreur de connexion. "
+                       "Veuillez utiliser uniquement les donnees brutes et le score ML si disponible.",
             "prediction_type": "probability" if domain == "sports" else "trend",
             "prediction_value": 0.5 if domain == "sports" else "NEUTRAL",
             "confidence": 0.0,
-            "caveats": "Analyse automatique indisponible. Ne pas utiliser pour des décisions réelles.",
-            "educational_reminder": "Cette plateforme est à but éducatif uniquement."
+            "caveats": "Analyse automatique indisponible. Ne pas utiliser pour des decisions reelles.",
+            "educational_reminder": "Cette plateforme est a but educatif uniquement."
         }
 
-    def analyse_sport(self, match_data: Dict[str, Any], ml_score: Optional[float] = None) -> Dict[str, Any]:
+    def analyse_sport(self, match_data: Dict[str, Any], model_score: Optional[float] = None) -> Dict[str, Any]:
         """
-        Analyze sports match data using GPT.
+        Analyse un match sportif avec GPT.
         
         Args:
-            match_data: Dictionary containing match information (teams, stats, odds, etc.)
-            ml_score: Optional ML model score (probability between 0 and 1)
+            match_data: Dictionnaire contenant les informations du match.
+            model_score: Score optionnel du modele ML (probabilite entre 0 et 1).
         
         Returns:
-            Dictionary containing structured analysis from GPT
+            Dictionnaire contenant l'analyse structuree.
         """
-        logger.info(f"Generating sports analysis for match: {match_data.get('match_id', 'unknown')}")
+        logger.info(f"Generation analyse sports pour match: {match_data.get('match_id', 'unknown')}")
         
-        prompt = self._create_sports_prompt(match_data, ml_score)
+        prompt = self._create_sports_prompt(match_data, model_score)
         result = self._call_gpt(prompt, domain="sports")
         
-        # Ajouter des métadonnées
-        result['ml_score'] = ml_score
+        # Ajouter metadonnees
+        result['ml_score'] = model_score
         result['data_source'] = 'gpt_analysis'
         
         return result
 
-    def analyse_finance(self, stock_data: Dict[str, Any], ml_score: Optional[float] = None) -> Dict[str, Any]:
+    def analyse_finance(self, stock_data: Dict[str, Any], model_score: Optional[float] = None) -> Dict[str, Any]:
         """
-        Analyze financial/stock data using GPT.
+        Analyse des donnees financieres avec GPT.
         
         Args:
-            stock_data: Dictionary containing stock information (prices, indicators, etc.)
-            ml_score: Optional ML model prediction
+            stock_data: Dictionnaire contenant les informations boursieres.
+            model_score: Score/tendance optionnel du modele ML.
         
         Returns:
-            Dictionary containing structured analysis from GPT
+            Dictionnaire contenant l'analyse structuree.
         """
-        logger.info(f"Generating financial analysis for: {stock_data.get('symbol', 'unknown')}")
+        logger.info(f"Generation analyse finance pour: {stock_data.get('symbol', 'unknown')}")
         
-        prompt = self._create_finance_prompt(stock_data, ml_score)
+        prompt = self._create_finance_prompt(stock_data, model_score)
         result = self._call_gpt(prompt, domain="finance")
         
-        # Ajouter des métadonnées
-        result['ml_score'] = ml_score
+        # Ajouter metadonnees
+        result['ml_score'] = model_score
         result['data_source'] = 'gpt_analysis'
         
         return result

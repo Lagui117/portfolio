@@ -1,21 +1,29 @@
-"""Security utilities for authentication and password handling."""
+"""
+Utilitaires de securite pour l'authentification.
+Hashage de mot de passe et gestion JWT.
+"""
+
 import re
+import logging
+from datetime import datetime, timezone, timedelta
+from typing import Optional, Tuple
+
 import bcrypt
-from datetime import datetime, timedelta
-from typing import Optional
 import jwt
 from flask import current_app
+
+logger = logging.getLogger(__name__)
 
 
 def hash_password(password: str) -> str:
     """
-    Hash a password using bcrypt.
+    Hash un mot de passe avec bcrypt.
     
     Args:
-        password: Plain text password
-        
+        password: Mot de passe en clair.
+    
     Returns:
-        Hashed password string
+        Mot de passe hashe.
     """
     salt = bcrypt.gensalt()
     hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
@@ -24,39 +32,41 @@ def hash_password(password: str) -> str:
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
-    Verify a password against its hash.
+    Verifie un mot de passe contre son hash.
     
     Args:
-        plain_password: Plain text password to verify
-        hashed_password: Hashed password to compare against
-        
+        plain_password: Mot de passe en clair.
+        hashed_password: Mot de passe hashe.
+    
     Returns:
-        True if password matches, False otherwise
+        True si le mot de passe correspond.
     """
     try:
         return bcrypt.checkpw(
             plain_password.encode('utf-8'),
             hashed_password.encode('utf-8')
         )
-    except Exception:
+    except Exception as e:
+        logger.error(f'Erreur verification mot de passe: {e}')
         return False
 
 
 def create_access_token(user_id: int, expires_delta: Optional[timedelta] = None) -> str:
     """
-    Create a JWT access token.
+    Cree un token JWT.
     
     Args:
-        user_id: User ID to encode in token
-        expires_delta: Optional custom expiration time
-        
-    Returns:
-        JWT token string
-    """
-    from datetime import timezone
+        user_id: ID de l'utilisateur.
+        expires_delta: Duree de validite du token.
     
+    Returns:
+        Token JWT.
+    """
     if expires_delta is None:
-        expires_delta = current_app.config['JWT_ACCESS_TOKEN_EXPIRES']
+        expires_delta = current_app.config.get(
+            'JWT_ACCESS_TOKEN_EXPIRES',
+            timedelta(hours=1)
+        )
     
     now = datetime.now(timezone.utc)
     expire = now + expires_delta
@@ -64,7 +74,8 @@ def create_access_token(user_id: int, expires_delta: Optional[timedelta] = None)
     payload = {
         'user_id': user_id,
         'exp': expire,
-        'iat': now
+        'iat': now,
+        'type': 'access'
     }
     
     token = jwt.encode(
@@ -78,13 +89,13 @@ def create_access_token(user_id: int, expires_delta: Optional[timedelta] = None)
 
 def decode_access_token(token: str) -> Optional[dict]:
     """
-    Decode and verify a JWT access token.
+    Decode et verifie un token JWT.
     
     Args:
-        token: JWT token string
-        
+        token: Token JWT.
+    
     Returns:
-        Decoded payload dict if valid, None otherwise
+        Payload du token si valide, None sinon.
     """
     try:
         payload = jwt.decode(
@@ -94,45 +105,47 @@ def decode_access_token(token: str) -> Optional[dict]:
         )
         return payload
     except jwt.ExpiredSignatureError:
+        logger.warning('Token expire')
         return None
-    except jwt.InvalidTokenError:
+    except jwt.InvalidTokenError as e:
+        logger.warning(f'Token invalide: {e}')
         return None
 
 
 def validate_email(email: str) -> bool:
     """
-    Validate email format.
+    Valide le format d'une adresse email.
     
     Args:
-        email: Email string to validate
-        
+        email: Adresse email.
+    
     Returns:
-        True if valid email format
+        True si le format est valide.
     """
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-    return re.match(pattern, email) is not None
+    return bool(re.match(pattern, email))
 
 
-def validate_password_strength(password: str) -> tuple[bool, str]:
+def validate_password_strength(password: str) -> Tuple[bool, str]:
     """
-    Validate password strength.
+    Verifie la force d'un mot de passe.
     
     Args:
-        password: Password to validate
-        
+        password: Mot de passe a verifier.
+    
     Returns:
-        Tuple of (is_valid, error_message)
+        Tuple (valide, message d'erreur).
     """
     if len(password) < 8:
-        return False, "Le mot de passe doit contenir au moins 8 caractères"
+        return False, 'Le mot de passe doit contenir au moins 8 caracteres.'
     
-    if not any(c.isupper() for c in password):
-        return False, "Le mot de passe doit contenir au moins une majuscule"
+    if not re.search(r'[A-Z]', password):
+        return False, 'Le mot de passe doit contenir au moins une majuscule.'
     
-    if not any(c.islower() for c in password):
-        return False, "Le mot de passe doit contenir au moins une minuscule"
+    if not re.search(r'[a-z]', password):
+        return False, 'Le mot de passe doit contenir au moins une minuscule.'
     
-    if not any(c.isdigit() for c in password):
-        return False, "Le mot de passe doit contenir au moins un chiffre"
+    if not re.search(r'\d', password):
+        return False, 'Le mot de passe doit contenir au moins un chiffre.'
     
-    return True, ""
+    return True, ''

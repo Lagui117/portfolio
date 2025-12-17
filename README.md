@@ -43,7 +43,7 @@ npm install
 ./run_backend.sh
 ```
 - API: `http://localhost:5000/api/v1`
-- Swagger: `http://localhost:5000/api/docs`
+- Docs: Voir [API_SPEC.md](docs/API_SPEC.md)
 
 **Frontend:**
 ```bash
@@ -103,7 +103,7 @@ python train_finance_model.py
 
 ### Développement
 - **[Development Plan](docs/DEVELOPMENT_PLAN.md)** - Plan de développement des 6 étapes
-- **Swagger UI** - `http://localhost:5000/api/docs` (avec backend lancé)
+- **API Endpoints** - 13 endpoints REST documentés dans [API_SPEC.md](docs/API_SPEC.md)
 
 ---
 

@@ -1,46 +1,65 @@
-"""Prediction model."""
-from datetime import datetime
+"""
+Modele Prediction pour stocker les predictions generees.
+"""
+
+from datetime import datetime, timezone
 from app.core.database import db
 
 
 class Prediction(db.Model):
-    """Model to store ML predictions made by users."""
+    """Modele pour les predictions (sports et finance)."""
     
-    __tablename__ = "predictions"
+    __tablename__ = 'predictions'
     
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     
-    # Type: 'sports' or 'finance'
-    prediction_type = db.Column(db.String(20), nullable=False, index=True)
+    # Type de prediction
+    prediction_type = db.Column(db.String(20), nullable=False)  # 'sports' ou 'finance'
     
-    # Input data (stored as JSON string)
-    input_data = db.Column(db.Text, nullable=False)
+    # Utilisateur
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     
-    # Prediction result
-    prediction_result = db.Column(db.String(100), nullable=False)
-    confidence_score = db.Column(db.Float)
+    # References (optionnelles)
+    sport_event_id = db.Column(db.Integer, db.ForeignKey('sport_events.id'), nullable=True)
+    stock_asset_id = db.Column(db.Integer, db.ForeignKey('stock_assets.id'), nullable=True)
     
-    # Model metadata
-    model_version = db.Column(db.String(50))
+    # Identifiants externes
+    external_match_id = db.Column(db.String(100), nullable=True)
+    ticker = db.Column(db.String(20), nullable=True)
     
-    # Timestamps
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    # Resultat de la prediction
+    model_score = db.Column(db.Float, nullable=True)
+    prediction_value = db.Column(db.String(100), nullable=True)  # ex: "HOME_WIN", "UP", "0.72"
+    confidence = db.Column(db.Float, nullable=True)
     
-    # Relationships
-    user = db.relationship("User", back_populates="predictions")
+    # Analyse GPT (stockee en JSON)
+    gpt_analysis = db.Column(db.JSON, nullable=True)
     
-    def to_dict(self):
-        """Convert prediction to dictionary."""
+    # Donnees d'entree (pour audit/debug)
+    input_data = db.Column(db.JSON, nullable=True)
+    
+    # Metadata
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    
+    # Relations
+    user = db.relationship('User', back_populates='predictions')
+    sport_event = db.relationship('SportEvent', back_populates='predictions')
+    stock_asset = db.relationship('StockAsset', back_populates='predictions')
+    
+    def to_dict(self) -> dict:
+        """Convertit la prediction en dictionnaire."""
         return {
-            "id": self.id,
-            "user_id": self.user_id,
-            "prediction_type": self.prediction_type,
-            "prediction_result": self.prediction_result,
-            "confidence_score": self.confidence_score,
-            "model_version": self.model_version,
-            "created_at": self.created_at.isoformat() if self.created_at else None,
+            'id': self.id,
+            'prediction_type': self.prediction_type,
+            'user_id': self.user_id,
+            'external_match_id': self.external_match_id,
+            'ticker': self.ticker,
+            'model_score': self.model_score,
+            'prediction_value': self.prediction_value,
+            'confidence': self.confidence,
+            'gpt_analysis': self.gpt_analysis,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
         }
     
     def __repr__(self):
-        return f"<Prediction {self.id} - {self.prediction_type}>"
+        return f'<Prediction {self.prediction_type} #{self.id}>'

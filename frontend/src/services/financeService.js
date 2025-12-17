@@ -1,115 +1,42 @@
 /**
- * Finance service.
- * 
- * Handles stock data, technical indicators, and predictions.
+ * Service pour les analyses financieres.
  */
+
 import apiClient from './apiClient';
 
-const financeService = {
-  /**
-   * Get stock market data.
-   */
-  async getStockData(symbol, period = '1mo', interval = '1d') {
-    try {
-      const response = await apiClient.get(`/finance/stocks/${symbol}`, {
-        params: { period, interval },
-      });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
+/**
+ * Obtient une prediction pour un actif financier.
+ * @param {string} ticker - Symbole boursier (ex: AAPL).
+ * @param {string} [period='1mo'] - Periode d'analyse.
+ * @returns {Promise<Object>} Prediction avec analyse GPT.
+ */
+export async function getFinancePrediction(ticker, period = '1mo') {
+  const response = await apiClient.get(`/finance/predict/${ticker}`, {
+    params: { period }
+  });
+  return response.data;
+}
 
-  /**
-   * Get technical indicators for a stock.
-   */
-  async getIndicators(symbol, period = '1mo', indicators = 'MA,RSI,VOLATILITY') {
-    try {
-      const response = await apiClient.get(`/finance/indicators/${symbol}`, {
-        params: { period, indicators },
-      });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
+/**
+ * Recupere la liste des actifs populaires.
+ * @param {Object} [options] - Options de filtrage.
+ * @param {string} [options.sector] - Secteur specifique.
+ * @param {number} [options.limit] - Nombre max de resultats.
+ * @returns {Promise<Object>} Liste des actifs.
+ */
+export async function getPopularStocks(options = {}) {
+  const response = await apiClient.get('/finance/stocks', { params: options });
+  return response.data;
+}
 
-  /**
-   * Predict stock price trend using ML.
-   */
-  async predictTrend(symbol, period = '1mo') {
-    try {
-      const response = await apiClient.post('/finance/predict', {
-        symbol,
-        period,
-      });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  /**
-   * Get user's finance prediction history.
-   */
-  async getPredictionHistory(limit = 50) {
-    try {
-      const response = await apiClient.get('/finance/predictions/history', {
-        params: { limit },
-      });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  /**
-   * Get user's watchlist.
-   */
-  async getWatchlist() {
-    try {
-      const response = await apiClient.get('/finance/watchlist');
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  /**
-   * Add symbol to watchlist.
-   */
-  async addToWatchlist(symbol) {
-    try {
-      const response = await apiClient.post('/finance/watchlist', { symbol });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  /**
-   * Get comprehensive financial prediction for a stock (NEW - with GPT analysis).
-   * 
-   * This combines:
-   * - Stock data and technical indicators
-   * - ML model prediction
-   * - GPT-powered analysis and insights
-   * 
-   * @param {string} ticker - The stock ticker symbol (e.g., 'AAPL', 'GOOGL')
-   * @param {string} period - Time period for analysis (default: '1mo')
-   * @returns {Promise<Object>} Complete prediction with stock data, ML score, and GPT analysis
-   */
-  async getFinancePrediction(ticker, period = '1mo') {
-    try {
-      const response = await apiClient.get(`/finance/predict/${ticker}`, {
-        params: { period }
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching finance prediction:', error);
-      throw error;
-    }
-  },
-};
-
-export default financeService;
+/**
+ * Recupere l'historique des predictions finance.
+ * @param {Object} [options] - Options de pagination.
+ * @param {number} [options.limit] - Nombre max de resultats.
+ * @param {number} [options.offset] - Offset pour pagination.
+ * @returns {Promise<Object>} Historique des predictions.
+ */
+export async function getFinancePredictionsHistory(options = {}) {
+  const response = await apiClient.get('/finance/predictions/history', { params: options });
+  return response.data;
+}

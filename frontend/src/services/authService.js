@@ -1,110 +1,81 @@
 /**
- * Authentication service.
- * 
- * Handles user registration, login, logout, and profile management.
+ * Service d'authentification.
+ * Gere inscription, connexion et recuperation du profil.
  */
+
 import apiClient from './apiClient';
 
-const authService = {
-  /**
-   * Register a new user.
-   */
-  async register(username, email, password) {
-    try {
-      const response = await apiClient.post('/auth/register', {
-        username,
-        email,
-        password,
-      });
-      
-      // Store token and user
-      const { access_token, user } = response.data;
-      localStorage.setItem('token', access_token);
-      localStorage.setItem('user', JSON.stringify(user));
-      
-      return { user, token: access_token };
-    } catch (error) {
-      throw error;
-    }
-  },
+/**
+ * Inscrit un nouvel utilisateur.
+ * @param {Object} payload - Donnees d'inscription.
+ * @param {string} payload.email - Email.
+ * @param {string} payload.username - Nom d'utilisateur.
+ * @param {string} payload.password - Mot de passe.
+ * @param {string} [payload.first_name] - Prenom.
+ * @param {string} [payload.last_name] - Nom de famille.
+ * @returns {Promise<Object>} Reponse avec access_token et user.
+ */
+export async function signup(payload) {
+  const response = await apiClient.post('/auth/register', payload);
+  return response.data;
+}
 
-  /**
-   * Login existing user.
-   */
-  async login(email, password) {
-    try {
-      const response = await apiClient.post('/auth/login', {
-        email,
-        password,
-      });
-      
-      const { access_token, user } = response.data;
-      localStorage.setItem('token', access_token);
-      localStorage.setItem('user', JSON.stringify(user));
-      
-      return { user, token: access_token };
-    } catch (error) {
-      throw error;
-    }
-  },
+/**
+ * Connecte un utilisateur.
+ * @param {Object} payload - Identifiants.
+ * @param {string} payload.email - Email.
+ * @param {string} payload.password - Mot de passe.
+ * @returns {Promise<Object>} Reponse avec access_token et user.
+ */
+export async function login(payload) {
+  const response = await apiClient.post('/auth/login', payload);
+  return response.data;
+}
 
-  /**
-   * Logout current user.
-   */
-  logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-  },
+/**
+ * Recupere les informations de l'utilisateur connecte.
+ * @param {boolean} [includeStats=false] - Inclure les statistiques.
+ * @returns {Promise<Object>} Donnees utilisateur.
+ */
+export async function getMe(includeStats = false) {
+  const params = includeStats ? { stats: 'true' } : {};
+  const response = await apiClient.get('/auth/me', { params });
+  return response.data;
+}
 
-  /**
-   * Get current user profile.
-   */
-  async getProfile() {
-    try {
-      const response = await apiClient.get('/auth/me');
-      const user = response.data.user;
-      localStorage.setItem('user', JSON.stringify(user));
-      return user;
-    } catch (error) {
-      throw error;
-    }
-  },
+/**
+ * Deconnecte l'utilisateur (cote client).
+ */
+export function logout() {
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('user');
+}
 
-  /**
-   * Update user profile.
-   */
-  async updateProfile(updates) {
-    try {
-      const response = await apiClient.put('/auth/me', updates);
-      const user = response.data.user;
-      localStorage.setItem('user', JSON.stringify(user));
-      return user;
-    } catch (error) {
-      throw error;
-    }
-  },
+/**
+ * Verifie si l'utilisateur est connecte.
+ * @returns {boolean}
+ */
+export function isAuthenticated() {
+  return !!localStorage.getItem('access_token');
+}
 
-  /**
-   * Get current user from local storage.
-   */
-  getCurrentUser() {
-    const userStr = localStorage.getItem('user');
-    return userStr ? JSON.parse(userStr) : null;
-  },
+/**
+ * Stocke le token et les infos utilisateur.
+ * @param {string} token - Token JWT.
+ * @param {Object} user - Donnees utilisateur.
+ */
+export function storeAuthData(token, user) {
+  localStorage.setItem('access_token', token);
+  if (user) {
+    localStorage.setItem('user', JSON.stringify(user));
+  }
+}
 
-  /**
-   * Check if user is authenticated.
-   */
-  isAuthenticated() {
-    return !!localStorage.getItem('token');
-  },
-
-  /**
-   * Get auth token.
-   */
-  getToken() {
-    return localStorage.getItem('token');
-  },
-};
-
-export default authService;
+/**
+ * Recupere l'utilisateur stocke localement.
+ * @returns {Object|null}
+ */
+export function getStoredUser() {
+  const user = localStorage.getItem('user');
+  return user ? JSON.parse(user) : null;
+}

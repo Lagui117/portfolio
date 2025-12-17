@@ -1,2 +1,3 @@
-"""PredictWise Backend Application"""
-__version__ = "0.1.0"
+"""
+PredictWise Backend - Plateforme educative d'analyse et de prediction.
+"""

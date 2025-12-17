@@ -3,22 +3,35 @@ version: '3.8'
 services:
   backend:
     build:
-      context: ../
-      dockerfile: infra/Dockerfile.backend
+      context: ../backend
+      dockerfile: ../infra/Dockerfile.backend
     ports:
       - "5000:5000"
     environment:
       - FLASK_ENV=production
       - DATABASE_URL=sqlite:///predictwise.db
+      - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-change-me-in-production}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - CORS_ORIGINS=http://localhost,http://localhost:80
+      - USE_MOCK_SPORTS_API=true
+      - USE_MOCK_FINANCE_API=true
     volumes:
       - backend-data:/app/data
     networks:
       - predictwise-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   frontend:
     build:
-      context: ../
-      dockerfile: infra/Dockerfile.frontend
+      context: ../frontend
+      dockerfile: ../infra/Dockerfile.frontend
+      args:
+        - VITE_API_BASE_URL=http://localhost:5000/api/v1
     ports:
       - "80:80"
     depends_on:

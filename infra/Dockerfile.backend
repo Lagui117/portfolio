@@ -3,19 +3,22 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# Installer curl pour le healthcheck
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
 # Copier les dépendances
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copier le code
-COPY . .
+COPY app/ ./app/
 
 # Exposer le port
 EXPOSE 5000
 
 # Variables d'environnement
-ENV FLASK_APP=app.main:app
+ENV FLASK_APP=app.main:create_app
 ENV FLASK_ENV=production
 
 # Commande de démarrage
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "app.main:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "app.main:create_app()"]
