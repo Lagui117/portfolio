@@ -334,3 +334,331 @@ class TestMeEndpoint:
         )
         
         assert response.status_code == 401
+
+
+class TestUpdateMeEndpoint:
+    """Tests pour PUT /api/v1/auth/me (mise à jour profil)."""
+    
+    def test_update_profile_first_last_name(self, client, auth_headers):
+        """Mise à jour first_name et last_name."""
+        response = client.put(
+            '/api/v1/auth/me',
+            headers=auth_headers,
+            json={'first_name': 'NewFirst', 'last_name': 'NewLast'}
+        )
+        
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data['user']['first_name'] == 'NewFirst'
+        assert data['user']['last_name'] == 'NewLast'
+    
+    def test_update_profile_email(self, client, auth_headers, db):
+        """Mise à jour email."""
+        response = client.put(
+            '/api/v1/auth/me',
+            headers=auth_headers,
+            json={'email': 'newemail@example.com'}
+        )
+        
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data['user']['email'] == 'newemail@example.com'
+    
+    def test_update_profile_email_already_taken(self, client, auth_headers, db, app):
+        """Email déjà utilisé par un autre user."""
+        from app.models.user import User
+        
+        # Créer un autre user avec l'email cible
+        other = User(email='taken@example.com', username='otheruser')
+        other.set_password('Password123!')
+        db.session.add(other)
+        db.session.commit()
+        
+        response = client.put(
+            '/api/v1/auth/me',
+            headers=auth_headers,
+            json={'email': 'taken@example.com'}
+        )
+        
+        assert response.status_code == 400
+        assert 'email' in response.get_json()['error']['message'].lower()
+    
+    def test_update_profile_username(self, client, auth_headers, db):
+        """Mise à jour username."""
+        response = client.put(
+            '/api/v1/auth/me',
+            headers=auth_headers,
+            json={'username': 'newusername'}
+        )
+        
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data['user']['username'] == 'newusername'
+    
+    def test_update_profile_username_already_taken(self, client, auth_headers, db, app):
+        """Username déjà pris par un autre user."""
+        from app.models.user import User
+        
+        other = User(email='other@example.com', username='takenuser')
+        other.set_password('Password123!')
+        db.session.add(other)
+        db.session.commit()
+        
+        response = client.put(
+            '/api/v1/auth/me',
+            headers=auth_headers,
+            json={'username': 'takenuser'}
+        )
+        
+        assert response.status_code == 400
+        assert 'username' in response.get_json()['error']['message'].lower()
+    
+    def test_update_profile_empty_data(self, client, auth_headers):
+        """Mise à jour sans données (no-op OK)."""
+        response = client.put(
+            '/api/v1/auth/me',
+            headers=auth_headers,
+            json={}
+        )
+        
+        assert response.status_code == 200
+    
+    def test_update_profile_no_auth(self, client):
+        """Mise à jour profil sans auth → 401."""
+        response = client.put(
+            '/api/v1/auth/me',
+            json={'first_name': 'Test'}
+        )
+        
+        assert response.status_code == 401
+
+
+class TestChangePasswordEndpoint:
+    """Tests pour PUT /api/v1/auth/password."""
+    
+    def test_change_password_success(self, client, auth_headers, sample_user, db):
+        """Changement de mot de passe réussi."""
+        response = client.put(
+            '/api/v1/auth/password',
+            headers=auth_headers,
+            json={
+                'current_password': 'SecurePassword123!',
+                'new_password': 'NewSecurePass456!'
+            }
+        )
+        
+        assert response.status_code == 200
+        assert 'successfully' in response.get_json()['message'].lower()
+    
+    def test_change_password_wrong_current(self, client, auth_headers):
+        """Mot de passe actuel incorrect."""
+        response = client.put(
+            '/api/v1/auth/password',
+            headers=auth_headers,
+            json={
+                'current_password': 'WrongPassword!',
+                'new_password': 'NewPassword456!'
+            }
+        )
+        
+        assert response.status_code == 401
+        assert 'current' in response.get_json()['error']['message'].lower()
+    
+    def test_change_password_too_short(self, client, auth_headers):
+        """Nouveau mot de passe trop court."""
+        response = client.put(
+            '/api/v1/auth/password',
+            headers=auth_headers,
+            json={
+                'current_password': 'SecurePassword123!',
+                'new_password': '123'  # trop court
+            }
+        )
+        
+        assert response.status_code == 400
+    
+    def test_change_password_missing_fields(self, client, auth_headers):
+        """Champs requis manquants."""
+        # Sans current_password
+        response = client.put(
+            '/api/v1/auth/password',
+            headers=auth_headers,
+            json={'new_password': 'NewPassword456!'}
+        )
+        assert response.status_code == 400
+        
+        # Sans new_password
+        response = client.put(
+            '/api/v1/auth/password',
+            headers=auth_headers,
+            json={'current_password': 'SecurePassword123!'}
+        )
+        assert response.status_code == 400
+    
+    def test_change_password_no_json(self, client, auth_headers):
+        """Pas de JSON → 400."""
+        response = client.put(
+            '/api/v1/auth/password',
+            headers=auth_headers
+        )
+        
+        # Sans Content-Type JSON, Flask peut retourner 400 ou 415
+        assert response.status_code in [400, 415]
+    
+    def test_change_password_no_auth(self, client):
+        """Changement de mot de passe sans auth → 401."""
+        response = client.put(
+            '/api/v1/auth/password',
+            json={
+                'current_password': 'OldPass!',
+                'new_password': 'NewPass!'
+            }
+        )
+        
+        assert response.status_code == 401
+
+
+class TestTokenRequiredDecorator:
+    """Tests pour le décorateur token_required."""
+    
+    def test_invalid_authorization_header_format(self, client):
+        """Header Authorization sans Bearer → 401 (token invalide)."""
+        response = client.get(
+            '/api/v1/auth/me',
+            headers={'Authorization': 'NotBearer token123'}
+        )
+        
+        # Le token "token123" seul est invalide, donc 401
+        assert response.status_code == 401
+    
+    def test_empty_bearer_token(self, client):
+        """Bearer sans token → 400 ou 401."""
+        response = client.get(
+            '/api/v1/auth/me',
+            headers={'Authorization': 'Bearer '}
+        )
+        
+        assert response.status_code in [400, 401]
+    
+    def test_token_for_deleted_user(self, client, app, db):
+        """Token valide mais user supprimé → 401."""
+        from app.models.user import User
+        
+        # Créer un user
+        user = User(email='todelete@test.com', username='todelete')
+        user.set_password('Password123!')
+        db.session.add(user)
+        db.session.commit()
+        user_id = user.id
+        
+        # Générer un token
+        with app.app_context():
+            token = create_access_token(user_id)
+        
+        # Supprimer le user
+        db.session.delete(user)
+        db.session.commit()
+        
+        # Utiliser le token
+        response = client.get(
+            '/api/v1/auth/me',
+            headers={'Authorization': f'Bearer {token}'}
+        )
+        
+        assert response.status_code == 401
+    
+    def test_token_for_inactive_user(self, client, app, db):
+        """Token valide mais user inactif → 401."""
+        from app.models.user import User
+        
+        # Créer user actif, puis le désactiver AVANT de générer le token
+        user = User(email='willbeinactive@test.com', username='willbeinactive', is_active=False)
+        user.set_password('Password123!')
+        db.session.add(user)
+        db.session.commit()
+        
+        with app.app_context():
+            token = create_access_token(user.id)
+        
+        response = client.get(
+            '/api/v1/auth/me',
+            headers={'Authorization': f'Bearer {token}'}
+        )
+        
+        assert response.status_code == 401
+
+
+class TestAdminRequiredDecorator:
+    """Tests pour le décorateur admin_required."""
+    
+    def test_admin_access_ok(self, client, app, db):
+        """Admin peut accéder aux routes admin."""
+        from app.models.user import User, UserRole
+        
+        admin = User(email='admintest@test.com', username='admintest', role=UserRole.ADMIN)
+        admin.set_password('AdminPass123!')
+        db.session.add(admin)
+        db.session.commit()
+        
+        with app.app_context():
+            token = create_access_token(admin.id, admin.role)
+        
+        response = client.get(
+            '/api/v1/admin/users',
+            headers={'Authorization': f'Bearer {token}'}
+        )
+        
+        assert response.status_code == 200
+    
+    def test_user_denied_admin_route(self, client, auth_headers):
+        """User normal ne peut pas accéder aux routes admin."""
+        response = client.get(
+            '/api/v1/admin/users',
+            headers=auth_headers
+        )
+        
+        assert response.status_code == 403
+
+
+class TestRegisterEdgeCases:
+    """Edge cases pour l'inscription."""
+    
+    def test_register_email_normalization(self, client, db):
+        """Email normalisé en minuscules."""
+        response = client.post(
+            '/api/v1/auth/register',
+            json={
+                'email': 'UPPERCASE@EXAMPLE.COM',
+                'username': 'uppercaseuser',
+                'password': 'Password123!'
+            }
+        )
+        
+        assert response.status_code == 201
+        assert response.get_json()['user']['email'] == 'uppercase@example.com'
+    
+    def test_register_with_optional_fields_only(self, client, db):
+        """Inscription sans first_name/last_name OK."""
+        response = client.post(
+            '/api/v1/auth/register',
+            json={
+                'email': 'minimal@test.com',
+                'username': 'minimal',
+                'password': 'Password123!'
+            }
+        )
+        
+        assert response.status_code == 201
+
+
+class TestLoginEdgeCases:
+    """Edge cases pour la connexion."""
+    
+    def test_login_no_json_body(self, client):
+        """Login sans body JSON."""
+        response = client.post(
+            '/api/v1/auth/login',
+            content_type='application/json'
+        )
+        
+        assert response.status_code == 400

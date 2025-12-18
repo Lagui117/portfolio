@@ -281,12 +281,19 @@ def get_activity_logs(current_user):
             
             for pred in predictions:
                 user = db.session.get(User, pred.user_id)
+                details = 'N/A'
+                if pred.input_data:
+                    details = pred.input_data.get('symbol') or pred.input_data.get('match_id', 'N/A')
+                elif pred.ticker:
+                    details = pred.ticker
+                elif pred.external_match_id:
+                    details = pred.external_match_id
                 activities.append({
                     'type': 'prediction',
                     'subtype': pred.prediction_type,
                     'user': user.username if user else 'Unknown',
                     'user_id': pred.user_id,
-                    'details': pred.query_data.get('symbol') or pred.query_data.get('match_id', 'N/A'),
+                    'details': details,
                     'timestamp': pred.created_at.isoformat() if pred.created_at else None
                 })
         
