@@ -118,6 +118,7 @@ def create_app(config_override: Optional[Dict[str, Any]] = None) -> Flask:
     from app.api.v1.users import users_bp
     from app.api.v1.chat import chat_bp
     from app.api.v1.admin import admin_bp
+    from app.api.v1.ai import ai_bp
     
     app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
     app.register_blueprint(sports_bp, url_prefix='/api/v1/sports')
@@ -125,6 +126,7 @@ def create_app(config_override: Optional[Dict[str, Any]] = None) -> Flask:
     app.register_blueprint(users_bp, url_prefix='/api/v1/users')
     app.register_blueprint(chat_bp, url_prefix='/api/v1/chat')
     app.register_blueprint(admin_bp, url_prefix='/api/v1/admin')
+    app.register_blueprint(ai_bp, url_prefix='/api/v1/ai')
     
     # Enregistrer les gestionnaires d'erreurs centralisés
     register_error_handlers(app)
@@ -149,6 +151,7 @@ def create_app(config_override: Optional[Dict[str, Any]] = None) -> Flask:
                 'sports': '/api/v1/sports',
                 'finance': '/api/v1/finance',
                 'chat': '/api/v1/chat',
+                'ai': '/api/v1/ai',
                 'health': '/health'
             },
             'disclaimer': 'Plateforme d\'analyse décisionnelle.'
