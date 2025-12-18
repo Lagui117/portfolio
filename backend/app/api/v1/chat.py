@@ -4,11 +4,11 @@ Endpoint conversationnel pour le copilote décisionnel.
 """
 
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
 import logging
 from datetime import datetime
 
 from app.services.chat_service import chat_service
+from app.api.v1.auth import token_required
 
 logger = logging.getLogger(__name__)
 
@@ -16,8 +16,8 @@ chat_bp = Blueprint('chat', __name__)
 
 
 @chat_bp.route('/message', methods=['POST'])
-@jwt_required()
-def send_message():
+@token_required
+def send_message(current_user):
     """
     Envoie un message au copilote IA et reçoit une réponse.
     
@@ -30,7 +30,7 @@ def send_message():
         JSON avec la réponse de l'assistant
     """
     try:
-        user_id = get_jwt_identity()
+        user_id = str(current_user.id)
         data = request.get_json()
         
         if not data or 'message' not in data:
@@ -68,8 +68,8 @@ def send_message():
 
 
 @chat_bp.route('/history', methods=['GET'])
-@jwt_required()
-def get_history():
+@token_required
+def get_history(current_user):
     """
     Récupère l'historique des conversations de l'utilisateur.
     
@@ -81,7 +81,7 @@ def get_history():
         Liste des messages de l'historique
     """
     try:
-        user_id = get_jwt_identity()
+        user_id = str(current_user.id)
         limit = min(int(request.args.get('limit', 50)), 100)
         conversation_id = request.args.get('conversation_id')
         
@@ -102,11 +102,11 @@ def get_history():
 
 
 @chat_bp.route('/clear', methods=['DELETE'])
-@jwt_required()
-def clear_history():
+@token_required
+def clear_history(current_user):
     """Efface l'historique des conversations de l'utilisateur."""
     try:
-        user_id = get_jwt_identity()
+        user_id = str(current_user.id)
         conversation_id = request.args.get('conversation_id')
         
         chat_service.clear_history(
@@ -122,8 +122,8 @@ def clear_history():
 
 
 @chat_bp.route('/suggestions', methods=['GET'])
-@jwt_required()
-def get_suggestions():
+@token_required
+def get_suggestions(current_user):
     """
     Récupère des suggestions de questions basées sur le contexte.
     

@@ -16,6 +16,13 @@ import AdminDashboard from './pages/AdminDashboard';
 import AdminUsers from './pages/AdminUsers';
 import AdminActivity from './pages/AdminActivity';
 
+// New Dashboard Pages
+import DashboardAdvanced from './pages/DashboardAdvanced';
+import PredictionHistory from './pages/PredictionHistory';
+import UserDashboard from './pages/UserDashboard';
+import History from './pages/History';
+import Watchlist from './pages/Watchlist';
+
 // Components
 import Layout from './components/Layout';
 import AdminRoute from './components/AdminRoute';
@@ -136,6 +143,42 @@ function App() {
       {/* Redirections de compatibilite */}
       <Route path="/dashboard" element={<Navigate to="/app" replace />} />
       <Route path="/app/admin" element={<Navigate to="/admin" replace />} />
+      
+      {/* Dashboard Avancé et Historique */}
+      <Route
+        path="/app/dashboard"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <DashboardAdvanced />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/app/history"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <PredictionHistory />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      <Route path="/history" element={<Navigate to="/app/history" replace />} />
+      
+      {/* Watchlist / Favoris */}
+      <Route
+        path="/app/watchlist"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <Watchlist />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      <Route path="/watchlist" element={<Navigate to="/app/watchlist" replace />} />
       
       {/* Route par defaut */}
       <Route path="*" element={<Navigate to="/" replace />} />

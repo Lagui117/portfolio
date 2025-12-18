@@ -4,7 +4,6 @@ Endpoints pour les statistiques personnalisées, KPIs et historique de performan
 """
 
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy import func, desc, case
 from datetime import datetime, timedelta, timezone
 import logging
@@ -13,6 +12,7 @@ from app.core.database import db
 from app.models.user import User
 from app.models.prediction import Prediction
 from app.models.consultation import Consultation
+from app.api.v1.auth import token_required
 
 logger = logging.getLogger(__name__)
 
@@ -20,8 +20,8 @@ dashboard_bp = Blueprint('dashboard', __name__)
 
 
 @dashboard_bp.route('/overview', methods=['GET'])
-@jwt_required()
-def get_overview():
+@token_required
+def get_overview(current_user):
     """
     Résumé complet du dashboard utilisateur.
     
@@ -31,7 +31,7 @@ def get_overview():
         - performance: métriques de performance
         - activity: activité récente
     """
-    user_id = get_jwt_identity()
+    user_id = current_user.id
     
     try:
         # Stats de base
@@ -100,8 +100,8 @@ def get_overview():
 
 
 @dashboard_bp.route('/performance', methods=['GET'])
-@jwt_required()
-def get_performance():
+@token_required
+def get_performance(current_user):
     """
     Métriques de performance détaillées.
     
@@ -115,7 +115,7 @@ def get_performance():
         - by_type: performance par type de prédiction
         - trends: tendances (hausse/baisse)
     """
-    user_id = get_jwt_identity()
+    user_id = current_user.id
     period = request.args.get('period', '30d')
     pred_type = request.args.get('type', 'all')
     
@@ -203,8 +203,8 @@ def get_performance():
 
 
 @dashboard_bp.route('/history', methods=['GET'])
-@jwt_required()
-def get_prediction_history():
+@token_required
+def get_prediction_history(current_user):
     """
     Historique complet des prédictions avec filtres.
     
@@ -219,7 +219,7 @@ def get_prediction_history():
         - sort: 'date', 'confidence' (default: 'date')
         - order: 'asc', 'desc' (default: 'desc')
     """
-    user_id = get_jwt_identity()
+    user_id = current_user.id
     
     # Paramètres de pagination
     page = request.args.get('page', 1, type=int)
@@ -298,12 +298,12 @@ def get_prediction_history():
 
 
 @dashboard_bp.route('/favorites', methods=['GET'])
-@jwt_required()
-def get_favorites():
+@token_required
+def get_favorites(current_user):
     """
     Récupère les équipes/actifs les plus consultés par l'utilisateur.
     """
-    user_id = get_jwt_identity()
+    user_id = current_user.id
     
     try:
         # Top actifs finance
@@ -351,8 +351,8 @@ def get_favorites():
 
 
 @dashboard_bp.route('/kpis', methods=['GET'])
-@jwt_required()
-def get_kpis():
+@token_required
+def get_kpis(current_user):
     """
     KPIs avancés pour le dashboard.
     
@@ -363,7 +363,7 @@ def get_kpis():
         - favorite_domain: domaine préféré (sports/finance)
         - streak: série actuelle
     """
-    user_id = get_jwt_identity()
+    user_id = current_user.id
     
     try:
         predictions = Prediction.query.filter_by(user_id=user_id).all()

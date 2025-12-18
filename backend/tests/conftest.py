@@ -122,11 +122,13 @@ def sample_inactive_user(db):
 def auth_token(app, sample_user):
     """
     Genere un token JWT valide pour l'utilisateur de test.
+    Utilise le système de tokens personnalisé de l'application.
     """
     from app.core.security import create_access_token
     
     with app.app_context():
-        token = create_access_token(sample_user.id)
+        # Utilise le système de tokens personnalisé (avec user_id dans le payload)
+        token = create_access_token(user_id=sample_user.id, role=sample_user.role)
         return token
 
 
