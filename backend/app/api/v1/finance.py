@@ -223,3 +223,104 @@ def get_predictions_history(current_user):
         'limit': limit,
         'offset': offset
     }), 200
+
+
+@finance_bp.route('/quote/<ticker>', methods=['GET'])
+@token_required
+def get_stock_quote(current_user, ticker):
+    """
+    Récupère les données live/quote d'un actif.
+    
+    Args:
+        ticker: Symbole boursier (ex: AAPL, GOOGL).
+    
+    Returns:
+        200: Quote avec données actuelles
+        404: Ticker non trouvé
+    """
+    ticker = ticker.upper().strip()
+    
+    try:
+        stock_data = finance_api_service.get_stock_data(ticker, period='1d')
+        
+        if not stock_data:
+            return jsonify({
+                'error': 'Ticker non trouvé',
+                'message': f'Aucune donnée trouvée pour {ticker}'
+            }), 404
+        
+        return jsonify({
+            'ticker': ticker,
+            'name': stock_data.get('name', ticker),
+            'current_price': stock_data.get('current_price'),
+            'change': stock_data.get('change', 0),
+            'change_percent': stock_data.get('change_percent', 0),
+            'volume': stock_data.get('volume'),
+            'market_cap': stock_data.get('market_cap'),
+            'high_52w': stock_data.get('high_52w'),
+            'low_52w': stock_data.get('low_52w'),
+            'last_updated': stock_data.get('last_updated')
+        }), 200
+        
+    except Exception as e:
+        logger.error(f'Erreur quote finance {ticker}: {e}')
+        return jsonify({
+            'error': 'Erreur lors de la récupération du quote',
+            'message': str(e)
+        }), 500
+
+
+@finance_bp.route('/indicators/<ticker>', methods=['GET'])
+@token_required
+def get_indicators(current_user, ticker):
+    """
+    Récupère les indicateurs techniques d'un actif.
+    
+    Args:
+        ticker: Symbole boursier.
+    
+    Returns:
+        200: Indicateurs techniques (RSI, MACD, etc.)
+    """
+    ticker = ticker.upper().strip()
+    
+    try:
+        stock_data = finance_api_service.get_stock_data(ticker, period='3mo')
+        
+        if not stock_data:
+            return jsonify({
+                'error': 'Ticker non trouvé',
+                'message': f'Aucune donnée trouvée pour {ticker}'
+            }), 404
+        
+        indicators = stock_data.get('indicators', {})
+        
+        return jsonify({
+            'ticker': ticker,
+            'indicators': {
+                'rsi': indicators.get('rsi'),
+                'macd': indicators.get('macd'),
+                'macd_signal': indicators.get('macd_signal'),
+                'macd_hist': indicators.get('macd_hist'),
+                'sma_20': indicators.get('sma_20'),
+                'sma_50': indicators.get('sma_50'),
+                'sma_200': indicators.get('sma_200'),
+                'ema_12': indicators.get('ema_12'),
+                'ema_26': indicators.get('ema_26'),
+                'bollinger_upper': indicators.get('bollinger_upper'),
+                'bollinger_lower': indicators.get('bollinger_lower'),
+                'atr': indicators.get('atr'),
+                'volume_avg': indicators.get('volume_avg')
+            },
+            'analysis': {
+                'trend': 'bullish' if indicators.get('sma_20', 0) > indicators.get('sma_50', 0) else 'bearish',
+                'momentum': 'overbought' if (indicators.get('rsi', 50) or 50) > 70 else ('oversold' if (indicators.get('rsi', 50) or 50) < 30 else 'neutral')
+            }
+        }), 200
+        
+    except Exception as e:
+        logger.error(f'Erreur indicateurs finance {ticker}: {e}')
+        return jsonify({
+            'error': 'Erreur lors de la récupération des indicateurs',
+            'message': str(e)
+        }), 500

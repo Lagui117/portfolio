@@ -13,7 +13,13 @@ from typing import Callable
 from flask import Blueprint, request, jsonify
 
 from app.core.database import db
-from app.core.security import create_access_token, decode_access_token
+from app.core.security import (
+    create_access_token, 
+    create_refresh_token,
+    decode_access_token, 
+    decode_refresh_token,
+    get_token_remaining_time
+)
 from app.core.errors import (
     ValidationError,
     AuthenticationError,
@@ -202,8 +208,9 @@ def login():
         logger.error(f'Error updating last login: {e}')
         # Non-bloquant, on continue
     
-    # Générer le token avec le role
+    # Générer les tokens avec le role
     access_token = create_access_token(user.id, user.role)
+    refresh_token = create_refresh_token(user.id)
     
     logger.info(f'User logged in: {user.username}')
     
@@ -211,8 +218,79 @@ def login():
     
     return jsonify({
         'access_token': access_token,
+        'refresh_token': refresh_token,
         'token_type': 'Bearer',
+        'expires_in': 3600,  # 1 heure par défaut
         'user': user_data.to_dict()
+    }), 200
+
+
+@auth_bp.route('/refresh', methods=['POST'])
+def refresh_token():
+    """
+    Rafraîchit un access token expiré avec un refresh token valide.
+    
+    Request JSON:
+        {
+            "refresh_token": "string"
+        }
+    
+    Returns:
+        200: Nouveau access_token
+        401: Refresh token invalide ou expiré
+    """
+    data = request.get_json()
+    
+    if not data or not data.get('refresh_token'):
+        raise ValidationError("refresh_token is required")
+    
+    # Décoder le refresh token
+    payload = decode_refresh_token(data['refresh_token'])
+    
+    if not payload:
+        raise AuthenticationError("Invalid or expired refresh token")
+    
+    # Récupérer l'utilisateur
+    user = db.session.get(User, payload['user_id'])
+    
+    if not user or not user.is_active:
+        raise AuthenticationError("User account not found or inactive")
+    
+    # Générer un nouveau access token
+    new_access_token = create_access_token(user.id, user.role)
+    
+    logger.info(f'Token refreshed for user: {user.username}')
+    
+    return jsonify({
+        'access_token': new_access_token,
+        'token_type': 'Bearer',
+        'expires_in': 3600
+    }), 200
+
+
+@auth_bp.route('/verify', methods=['GET'])
+@token_required
+def verify_token(current_user):
+    """
+    Vérifie si le token actuel est valide et retourne les infos.
+    Utile pour vérifier la session côté frontend.
+    
+    Returns:
+        200: Token valide avec infos utilisateur
+        401: Token invalide
+    """
+    # Récupérer le token du header pour obtenir le temps restant
+    auth_header = request.headers.get('Authorization', '')
+    token = auth_header.split(' ')[1] if ' ' in auth_header else ''
+    remaining_time = get_token_remaining_time(token)
+    
+    user_data = UserResponseSchema.from_model(current_user)
+    
+    return jsonify({
+        'valid': True,
+        'user': user_data.to_dict(),
+        'expires_in': remaining_time,
+        'should_refresh': remaining_time and remaining_time < 300  # < 5 min
     }), 200
 
 

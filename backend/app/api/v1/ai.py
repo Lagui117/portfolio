@@ -403,3 +403,195 @@ def legacy_gpt_analyze(current_user):
                 'message': 'Erreur d\'analyse'
             }
         }), 500
+
+
+# ============================================
+# LIVE AI ANALYZE (avec versioning et auto-update)
+# ============================================
+
+@ai_bp.route('/analyze/live', methods=['POST'])
+@token_required
+def analyze_live(current_user):
+    """
+    Analyse IA avec support live (versioning + recalcul intelligent).
+    
+    Ne recalcule l'analyse que si:
+    - data_version différent (données ont changé)
+    - ET variation significative (seuil dépassé)
+    
+    Body:
+        domain (str): 'sports' ou 'finance'
+        entity_id (str): Identifiant (ticker, match_id)
+        data_version (str, optional): Version des données côté client
+        data (dict): Données à analyser
+        force_refresh (bool, optional): Force le recalcul
+    
+    Returns:
+        {
+            "analysis": {...},
+            "data_version": "abc123",
+            "updated_at": "2025-01-01T00:00:00",
+            "recalculated": true/false,
+            "reason": "price_change" | "cached" | "forced"
+        }
+    """
+    from app.core.live import live_cache, ResourceType, make_live_response
+    from app.core.config import Config
+    import hashlib
+    import json
+    
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'error': {'message': 'Body requis'}}), 400
+        
+        domain = data.get('domain', data.get('type'))  # Support les 2 formats
+        entity_id = data.get('entity_id', '')
+        client_version = data.get('data_version')
+        analysis_data = data.get('data', {})
+        force_refresh = data.get('force_refresh', False)
+        
+        if not domain:
+            return jsonify({'error': {'message': 'domain requis'}}), 400
+        
+        # Générer la version des données actuelles
+        current_version = hashlib.md5(
+            json.dumps(analysis_data, sort_keys=True, default=str).encode()
+        ).hexdigest()[:12]
+        
+        # Clé de cache pour cette analyse
+        cache_key = f"{domain}:{entity_id}"
+        
+        # Vérifier le cache d'analyse IA
+        cached_analysis = live_cache.get(
+            ResourceType.AI_ANALYSIS, 
+            cache_key,
+            check_version=client_version
+        )
+        
+        # Décider si on recalcule
+        should_recalculate = force_refresh
+        recalc_reason = "forced" if force_refresh else None
+        
+        if not should_recalculate and cached_analysis:
+            # Vérifier si les données ont changé significativement
+            if client_version != current_version:
+                # Calculer le seuil de variation
+                variation = _calculate_variation(domain, analysis_data, cached_analysis.value.get('_source_data', {}))
+                
+                threshold = (
+                    Config.AI_RECALC_PRICE_THRESHOLD if domain == 'finance'
+                    else Config.AI_RECALC_ODDS_THRESHOLD
+                )
+                
+                if variation > threshold:
+                    should_recalculate = True
+                    recalc_reason = f"{domain}_change"
+        elif not cached_analysis:
+            should_recalculate = True
+            recalc_reason = "no_cache"
+        
+        # Retourner le cache si pas de recalcul nécessaire
+        if not should_recalculate and cached_analysis:
+            response = {
+                **cached_analysis.value,
+                'recalculated': False,
+                'reason': 'cached',
+                '_live': cached_analysis.to_metadata(),
+            }
+            return jsonify(response), 200
+        
+        # Recalculer l'analyse
+        question = data.get('question', f"Analyse ces données {domain}")
+        context = {
+            'current_analysis': {
+                'type': domain,
+                **_extract_analysis_context(domain, analysis_data)
+            },
+            'page': f'{domain}_dashboard'
+        }
+        
+        result = chat_service.process_message(
+            user_id=str(current_user.id),
+            message=question,
+            context=context,
+            conversation_id=None
+        )
+        
+        analysis_result = {
+            'analysis': result['response']['content'],
+            'type': domain,
+            'entity_id': entity_id,
+            'data_summary': _summarize_data(domain, analysis_data),
+            'confidence': _calculate_confidence(result['response']['content'], context),
+            '_source_data': analysis_data,  # Pour comparaison future
+            'metadata': {
+                'model': os.getenv('OPENAI_MODEL', 'gpt-4o-mini'),
+                'fallback_mode': chat_service.client is None
+            }
+        }
+        
+        # Mettre en cache
+        cached = live_cache.set(
+            ResourceType.AI_ANALYSIS,
+            cache_key,
+            analysis_result,
+            ttl=Config.LIVE_TTL_AI_ANALYSIS,
+            force_version=current_version
+        )
+        
+        response = {
+            **analysis_result,
+            'recalculated': True,
+            'reason': recalc_reason,
+            '_live': cached.to_metadata(),
+        }
+        
+        # Supprimer _source_data de la réponse (usage interne)
+        response.pop('_source_data', None)
+        
+        return jsonify(response), 200
+        
+    except Exception as e:
+        logger.error(f"Erreur AI Analyze Live: {e}", exc_info=True)
+        return jsonify({
+            'error': {
+                'type': 'internal_error',
+                'message': 'Erreur d\'analyse live'
+            }
+        }), 500
+
+
+def _calculate_variation(domain: str, new_data: dict, old_data: dict) -> float:
+    """
+    Calcule la variation entre anciennes et nouvelles données.
+    Retourne un pourcentage (0.0 = identique, 1.0 = 100% différent).
+    """
+    try:
+        if domain == 'finance':
+            # Variation du prix
+            old_price = old_data.get('current_price', old_data.get('price', 0))
+            new_price = new_data.get('current_price', new_data.get('price', 0))
+            
+            if old_price and new_price:
+                return abs((new_price - old_price) / old_price) * 100
+            return 100.0  # Force recalcul si pas de prix
+        
+        elif domain == 'sports':
+            # Variation des cotes
+            old_odds = old_data.get('odds_home', 0)
+            new_odds = new_data.get('odds_home', 0)
+            
+            if old_odds and new_odds:
+                return abs((new_odds - old_odds) / old_odds) * 100
+            
+            # Vérifier si le status a changé
+            if old_data.get('status') != new_data.get('status'):
+                return 100.0
+            
+            return 0.0
+        
+        return 0.0
+    except Exception:
+        return 0.0

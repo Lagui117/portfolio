@@ -30,6 +30,9 @@ class Config:
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(
         seconds=int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 3600))
     )
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(
+        days=int(os.getenv('JWT_REFRESH_TOKEN_EXPIRES_DAYS', 30))
+    )
     JWT_ALGORITHM = 'HS256'
     
     # CORS - En production, spécifier uniquement les origines nécessaires
@@ -52,6 +55,31 @@ class Config:
     # Cache
     CACHE_ENABLED = os.getenv('CACHE_ENABLED', 'true').lower() == 'true'
     CACHE_DEFAULT_TTL = int(os.getenv('CACHE_DEFAULT_TTL', 60))
+    
+    # Live Mode Configuration
+    LIVE_MODE_ENABLED = os.getenv('LIVE_MODE_ENABLED', 'true').lower() == 'true'
+    
+    # TTL par type de ressource (secondes)
+    LIVE_TTL_FINANCE_TICKER = int(os.getenv('LIVE_TTL_FINANCE_TICKER', 15))
+    LIVE_TTL_FINANCE_LIST = int(os.getenv('LIVE_TTL_FINANCE_LIST', 60))
+    LIVE_TTL_SPORTS_MATCH = int(os.getenv('LIVE_TTL_SPORTS_MATCH', 30))
+    LIVE_TTL_SPORTS_LIST = int(os.getenv('LIVE_TTL_SPORTS_LIST', 120))
+    LIVE_TTL_AI_ANALYSIS = int(os.getenv('LIVE_TTL_AI_ANALYSIS', 300))
+    LIVE_TTL_DASHBOARD = int(os.getenv('LIVE_TTL_DASHBOARD', 60))
+    
+    # Polling intervals recommandés (secondes)
+    LIVE_POLL_FINANCE_FAST = int(os.getenv('LIVE_POLL_FINANCE_FAST', 10))
+    LIVE_POLL_FINANCE_NORMAL = int(os.getenv('LIVE_POLL_FINANCE_NORMAL', 30))
+    LIVE_POLL_SPORTS_FAST = int(os.getenv('LIVE_POLL_SPORTS_FAST', 30))
+    LIVE_POLL_SPORTS_NORMAL = int(os.getenv('LIVE_POLL_SPORTS_NORMAL', 60))
+    
+    # Background scheduler intervals (secondes)
+    SCHEDULER_FINANCE_WATCHLIST = int(os.getenv('SCHEDULER_FINANCE_WATCHLIST', 30))
+    SCHEDULER_SPORTS_MATCHES = int(os.getenv('SCHEDULER_SPORTS_MATCHES', 60))
+    
+    # Seuils pour recalcul IA
+    AI_RECALC_PRICE_THRESHOLD = float(os.getenv('AI_RECALC_PRICE_THRESHOLD', 0.3))  # 0.3%
+    AI_RECALC_ODDS_THRESHOLD = float(os.getenv('AI_RECALC_ODDS_THRESHOLD', 0.05))   # 5%
     
     # Logging
     LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')

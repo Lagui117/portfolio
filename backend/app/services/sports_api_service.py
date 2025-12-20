@@ -322,6 +322,82 @@ class SportsAPIService:
                 matches.append(match)
         return matches
 
+    @cached(ttl=300, key_prefix="team_stats")
+    def get_team_stats(self, team_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Récupère les statistiques d'une équipe.
+        
+        Args:
+            team_id: Identifiant de l'équipe.
+        
+        Returns:
+            Dictionnaire des statistiques ou None si non trouvé.
+        """
+        if self.use_mock:
+            return self._get_mock_team_stats(team_id)
+        
+        try:
+            url = f"https://{self.api_host}/v3/teams/statistics"
+            headers = {
+                "X-RapidAPI-Key": self.api_key,
+                "X-RapidAPI-Host": self.api_host
+            }
+            params = {"team": team_id, "season": datetime.now().year}
+            
+            response = requests.get(url, headers=headers, params=params, timeout=10)
+            response.raise_for_status()
+            
+            data = response.json()
+            
+            if not data.get('response'):
+                return self._get_mock_team_stats(team_id)
+            
+            stats = data['response']
+            return {
+                'name': stats.get('team', {}).get('name', 'Unknown'),
+                'logo': stats.get('team', {}).get('logo'),
+                'country': stats.get('country'),
+                'matches_played': stats.get('fixtures', {}).get('played', {}).get('total', 0),
+                'wins': stats.get('fixtures', {}).get('wins', {}).get('total', 0),
+                'draws': stats.get('fixtures', {}).get('draws', {}).get('total', 0),
+                'losses': stats.get('fixtures', {}).get('loses', {}).get('total', 0),
+                'goals_for': stats.get('goals', {}).get('for', {}).get('total', {}).get('total', 0),
+                'goals_against': stats.get('goals', {}).get('against', {}).get('total', {}).get('total', 0),
+                'clean_sheets': stats.get('clean_sheet', {}).get('total', 0),
+                'form': list(stats.get('form', '')[-5:]) if stats.get('form') else []
+            }
+            
+        except Exception as e:
+            logger.error(f"Erreur récupération stats équipe {team_id}: {e}")
+            return self._get_mock_team_stats(team_id)
+
+    def _get_mock_team_stats(self, team_id: str) -> Dict[str, Any]:
+        """Retourne des statistiques mock pour une équipe."""
+        import hashlib
+        # Utiliser un hash pour générer des données cohérentes par équipe
+        hash_val = int(hashlib.md5(str(team_id).encode()).hexdigest()[:8], 16)
+        
+        wins = 8 + (hash_val % 10)
+        draws = 3 + (hash_val % 5)
+        losses = 5 + (hash_val % 7)
+        
+        return {
+            'name': f'Team {team_id}',
+            'logo': None,
+            'country': 'France',
+            'founded': 1990 + (hash_val % 30),
+            'matches_played': wins + draws + losses,
+            'wins': wins,
+            'draws': draws,
+            'losses': losses,
+            'goals_for': 20 + (hash_val % 30),
+            'goals_against': 15 + (hash_val % 25),
+            'clean_sheets': 3 + (hash_val % 5),
+            'form': ['W', 'D', 'W', 'L', 'W'][(hash_val % 5):] + ['W', 'D', 'W', 'L', 'W'][:((hash_val % 5))],
+            'league_position': 1 + (hash_val % 18),
+            'points': 30 + (hash_val % 40)
+        }
+
 
 # Instance globale du service
 sports_api_service = SportsAPIService()

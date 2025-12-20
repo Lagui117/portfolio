@@ -93,6 +93,45 @@ def create_access_token(
     return token
 
 
+def create_refresh_token(
+    user_id: int,
+    expires_delta: Optional[timedelta] = None
+) -> str:
+    """
+    Crée un refresh token JWT.
+    
+    Args:
+        user_id: ID de l'utilisateur.
+        expires_delta: Durée de validité du token (défaut: 30 jours).
+    
+    Returns:
+        Refresh token JWT.
+    """
+    if expires_delta is None:
+        expires_delta = current_app.config.get(
+            'JWT_REFRESH_TOKEN_EXPIRES',
+            timedelta(days=30)
+        )
+    
+    now = datetime.now(timezone.utc)
+    expire = now + expires_delta
+    
+    payload = {
+        'user_id': user_id,
+        'exp': expire,
+        'iat': now,
+        'type': 'refresh'
+    }
+    
+    token = jwt.encode(
+        payload,
+        current_app.config['JWT_SECRET_KEY'],
+        algorithm='HS256'
+    )
+    
+    return token
+
+
 def decode_access_token(token: str) -> Optional[dict]:
     """
     Decode et verifie un token JWT.
@@ -109,12 +148,72 @@ def decode_access_token(token: str) -> Optional[dict]:
             current_app.config['JWT_SECRET_KEY'],
             algorithms=['HS256']
         )
+        # Vérifier que c'est bien un access token
+        if payload.get('type') != 'access':
+            logger.warning('Token type mismatch: expected access token')
+            return None
         return payload
     except jwt.ExpiredSignatureError:
         logger.warning('Token expire')
         return None
     except jwt.InvalidTokenError as e:
         logger.warning(f'Token invalide: {e}')
+        return None
+
+
+def decode_refresh_token(token: str) -> Optional[dict]:
+    """
+    Decode et vérifie un refresh token JWT.
+    
+    Args:
+        token: Refresh token JWT.
+    
+    Returns:
+        Payload du token si valide, None sinon.
+    """
+    try:
+        payload = jwt.decode(
+            token,
+            current_app.config['JWT_SECRET_KEY'],
+            algorithms=['HS256']
+        )
+        # Vérifier que c'est bien un refresh token
+        if payload.get('type') != 'refresh':
+            logger.warning('Token type mismatch: expected refresh token')
+            return None
+        return payload
+    except jwt.ExpiredSignatureError:
+        logger.warning('Refresh token expiré')
+        return None
+    except jwt.InvalidTokenError as e:
+        logger.warning(f'Refresh token invalide: {e}')
+        return None
+
+
+def get_token_remaining_time(token: str) -> Optional[int]:
+    """
+    Récupère le temps restant avant expiration d'un token.
+    
+    Args:
+        token: Token JWT.
+    
+    Returns:
+        Secondes restantes, ou None si invalide/expiré.
+    """
+    try:
+        payload = jwt.decode(
+            token,
+            current_app.config['JWT_SECRET_KEY'],
+            algorithms=['HS256'],
+            options={'verify_exp': False}  # Ne pas lever d'exception si expiré
+        )
+        exp = payload.get('exp')
+        if exp:
+            now = datetime.now(timezone.utc).timestamp()
+            remaining = int(exp - now)
+            return max(0, remaining)
+        return None
+    except jwt.InvalidTokenError:
         return None
 
 

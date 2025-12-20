@@ -233,3 +233,114 @@ def get_predictions_history(current_user):
         'limit': limit,
         'offset': offset
     }), 200
+
+
+@sports_bp.route('/match/<match_id>', methods=['GET'])
+@token_required
+def get_match_details(current_user, match_id):
+    """
+    Récupère les détails d'un match spécifique (données live).
+    
+    Args:
+        match_id: Identifiant du match.
+    
+    Returns:
+        200: Détails du match avec scores live si disponibles
+        404: Match non trouvé
+    """
+    try:
+        match_data = sports_api_service.get_match_data(match_id)
+        
+        if not match_data:
+            return jsonify({
+                'error': 'Match non trouvé',
+                'message': f'Aucun match trouvé avec l\'identifiant {match_id}'
+            }), 404
+        
+        return jsonify({
+            'match': {
+                'id': match_data.get('match_id', match_id),
+                'home_team': match_data.get('home_team', {}).get('name', 'Unknown'),
+                'away_team': match_data.get('away_team', {}).get('name', 'Unknown'),
+                'competition': match_data.get('league', 'Unknown'),
+                'date': match_data.get('date'),
+                'status': match_data.get('status', 'scheduled'),
+                'score': {
+                    'home': match_data.get('score_home'),
+                    'away': match_data.get('score_away')
+                },
+                'venue': match_data.get('venue'),
+                'stats': {
+                    'home_team': match_data.get('home_team', {}),
+                    'away_team': match_data.get('away_team', {}),
+                    'odds': match_data.get('odds', {}),
+                    'h2h': match_data.get('h2h_stats', {})
+                }
+            },
+            'live': {
+                'is_live': match_data.get('status') == 'in_progress',
+                'minute': match_data.get('current_minute'),
+                'events': match_data.get('events', [])
+            }
+        }), 200
+        
+    except Exception as e:
+        logger.error(f'Erreur détails match {match_id}: {e}')
+        return jsonify({
+            'error': 'Erreur lors de la récupération du match',
+            'message': str(e)
+        }), 500
+
+
+@sports_bp.route('/team/<team_id>/stats', methods=['GET'])
+@token_required
+def get_team_statistics(current_user, team_id):
+    """
+    Récupère les statistiques d'une équipe.
+    
+    Args:
+        team_id: Identifiant de l'équipe.
+    
+    Returns:
+        200: Statistiques de l'équipe
+        404: Équipe non trouvée
+    """
+    try:
+        team_stats = sports_api_service.get_team_stats(team_id)
+        
+        if not team_stats:
+            return jsonify({
+                'error': 'Équipe non trouvée',
+                'message': f'Aucune équipe trouvée avec l\'identifiant {team_id}'
+            }), 404
+        
+        return jsonify({
+            'team': {
+                'id': team_id,
+                'name': team_stats.get('name', 'Unknown'),
+                'logo': team_stats.get('logo'),
+                'country': team_stats.get('country'),
+                'founded': team_stats.get('founded')
+            },
+            'stats': {
+                'matches_played': team_stats.get('matches_played', 0),
+                'wins': team_stats.get('wins', 0),
+                'draws': team_stats.get('draws', 0),
+                'losses': team_stats.get('losses', 0),
+                'goals_for': team_stats.get('goals_for', 0),
+                'goals_against': team_stats.get('goals_against', 0),
+                'clean_sheets': team_stats.get('clean_sheets', 0),
+                'form': team_stats.get('form', [])
+            },
+            'rankings': {
+                'league_position': team_stats.get('league_position'),
+                'points': team_stats.get('points', 0)
+            }
+        }), 200
+        
+    except Exception as e:
+        logger.error(f'Erreur stats équipe {team_id}: {e}')
+        return jsonify({
+            'error': 'Erreur lors de la récupération des statistiques',
+            'message': str(e)
+        }), 500
